@@ -5,7 +5,7 @@
 Ksar Akil chronology build with Oxcal software
 }
 \description{
-MCMC samples from the posterior distribution of dates included in the Ksar Akil chronology build with Oxcal software. See Bosch, M. et al. (2015) for more details.
+MCMC samples from the posterior distribution of dates included in the Ksar Akil chronology build with Oxcal software. See Bosch, M. et al. (2015) for more details. The MCMC samples are in calendar year (BC/AD).
 }
 \usage{data(KADatesOxcal)}
 

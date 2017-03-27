@@ -7,12 +7,12 @@
 DatesHiatus(a_chain, b_chain, level=0.95)
 }
 \arguments{
-\item{a_chain}{numeric vector containing the output of the MCMC algorithm for the first one-parameter (date) a  }
-\item{b_chain}{numeric vector containing the output of the same MCMC algorithm for the second one-parameter  (date) b}
+\item{a_chain}{numeric vector containing the output of the MCMC algorithm for the first one-parameter (date) a.The MCMC samples should be in calendar year (BC/AD) }
+\item{b_chain}{numeric vector containing the output of the same MCMC algorithm for the second one-parameter (date) b. The MCMC samples should be in calendar year (BC/AD)}
 \item{level}{probability corresponding to the level of confidence used for the credible interval and the highest density region}
 }
 \value{
-Returns the endpoints of the longest hiatus between two parameters 
+Returns the endpoints of the longest hiatus between two parameters. The result is given in calendar year (in format BC/AD).
 }
 \description{
 Finds if it exists a gap between two dates that is the longest interval that satisfies : P(a_chain < IntervalInf < IntervalSup < b_chain | M) = level

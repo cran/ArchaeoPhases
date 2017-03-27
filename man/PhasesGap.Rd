@@ -7,12 +7,12 @@
 PhasesGap(Phase1Max_chain, Phase2Min_chain, level = 0.95)
 }
 \arguments{
-  \item{Phase1Max_chain}{numeric vector containing the output of the MCMC algorithm for the maximum of the dates included in the oldest phase}
-  \item{Phase2Min_chain}{numeric vector containing the output of the MCMC algorithm for the minimum of the dates included in the youngest phase}
+  \item{Phase1Max_chain}{numeric vector containing the output of the MCMC algorithm for the maximum of the dates included in the oldest phase. The MCMC samples should be in calendar year (BC/AD).}
+  \item{Phase2Min_chain}{numeric vector containing the output of the MCMC algorithm for the minimum of the dates included in the youngest phase. The MCMC samples should be in calendar year (BC/AD).}
   \item{level}{probability corresponding to the level of confidence}
 }
 \value{
-Returns a vector of values containing the level of confidence and the endpoints of the gap between the successive phases
+Returns a vector of values containing the level of confidence and the endpoints of the gap between the successive phases. The result is given in calendar year (in format BC/AD).
 }
 \description{
 This function finds, if it exists, the gap between two successive phases. This gap or hiatus is the longest interval [IntervalInf ; IntervalSup] that satisfies : P(Phase1Max_chain < IntervalInf < IntervalSup < Phase2Min_chain | M) = level.

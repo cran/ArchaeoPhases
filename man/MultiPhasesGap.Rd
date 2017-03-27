@@ -2,23 +2,23 @@
 % Please edit documentation in R/prog.R
 \name{MultiPhasesGap}
 \alias{MultiPhasesGap}
-\title{Gap/Hiatus between a succession of phases (for phases in temporal order constraint)}
+\title{Gap/Hiatus between a succession of groups (for groups in temporal order constraint)}
 \usage{
 MultiPhasesGap(data, position_minimum, position_maximum = position_minimum+1,
  level = 0.95)
 }
 \arguments{
-  \item{data}{dataframe containing the output of the MCMC algorithm }
-  \item{position_minimum}{numeric vector containing the column number corresponding to the minimum of the dates included in each phase}
-  \item{position_maximum}{numeric vector containing the column number corresponding to the maximum of the dates included in each phase. By default, position_maximum = position_minimum + 1. 
+  \item{data}{dataframe containing the output of the MCMC algorithm. The MCMC samples should be in calendar year (BC/AD). }
+  \item{position_minimum}{numeric vector containing the column number corresponding to the minimum of the dates included in each group}
+  \item{position_maximum}{numeric vector containing the column number corresponding to the maximum of the dates included in each group. By default, position_maximum = position_minimum + 1. 
 }
   \item{level}{probability corresponding to the level of confidence}
 }
 \value{
-Returns a matrix of values containing the level of confidence and the endpoints of the gap for each pair of successive phases
+Returns a matrix of values containing the level of confidence and the endpoints of the gap for each pair of successive groups. The result is given in calendar year (in format BC/AD).
 }
 \description{
-This function finds, if it exists, the gap between two successive phases. This gap or hiatus is the longest interval [IntervalInf, IntervalSup] that satisfies : P(Phase1Max < IntervalInf < IntervalSup < Phase2Min | M) = level for each successive phase.
+This function finds, if it exists, the gap between two successive groups. This gap or hiatus is the longest interval [IntervalInf, IntervalSup] that satisfies : P(Phase1Max < IntervalInf < IntervalSup < Phase2Min | M) = level for each successive group.
 }
 \details{
 For each i, MultiPhasesGap computes the gap interval for the phase defined by its minimum position_minimum[i] and its maximum position_maximum[i]. 
@@ -33,7 +33,7 @@ The default value of position_maximum corresponds to CSV files exported from Chr
   # Data extracted from ChronoModel software
   data(Phases)
   
-  # List of the name of the phases 
+  # List of the name of the groups 
   names(Phases)
   
   # Stipulating position_maximum

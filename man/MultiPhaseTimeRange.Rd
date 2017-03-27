@@ -2,20 +2,20 @@
 % Please edit documentation in R/prog.R
 \name{MultiPhaseTimeRange}
 \alias{MultiPhaseTimeRange}
-\title{Phase Time Range for multiple phases}
+\title{Phase Time Range for multiple groups}
 \usage{
 MultiPhaseTimeRange(data, position_minimum, position_maximum = position_minimum+1,
  level = 0.95)
 }
 \arguments{
-  \item{data}{dataframe containing the output of the MCMC algorithm }
-  \item{position_minimum}{numeric vector containing the column number corresponding to the minimum of the dates included in each phase}
-  \item{position_maximum}{numeric vector containing the column number corresponding to the maximum of the dates included in each phase. By default, position_maximum = position_minimum + 1. 
+  \item{data}{dataframe containing the output of the MCMC algorithm. The MCMC samples should be in calendar year (BC/AD). }
+  \item{position_minimum}{numeric vector containing the column number corresponding to the minimum of the dates included in each group}
+  \item{position_maximum}{numeric vector containing the column number corresponding to the maximum of the dates included in each group. By default, position_maximum = position_minimum + 1. 
 }
   \item{level}{probability corresponding to the desired level of confidence}
 }
 \value{
-Returns a matrix of values containing the level of confidence and the endpoints of the shortest time range associated with the desired level
+Returns a matrix of values containing the level of confidence and the endpoints of the shortest time range associated with the desired level. The result is given in calendar year (in format BC/AD).
 }
 \description{
 Computes the shortest interval that satisfies : P(PhaseMin < IntervalInf < IntervalSup < PhaseMax | M) = level
@@ -33,7 +33,7 @@ The default value of position_maximum corresponds to CSV files exported from Chr
   # Data extracted from ChronoModel software
   data(Phases)
   
-  # List of the name of the phases 
+  # List of the name of the groups 
   names(Phases)
   
   # Stipulating position_maximum

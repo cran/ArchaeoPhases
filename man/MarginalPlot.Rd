@@ -5,18 +5,16 @@
 \title{Plot of a marginal posterior density}
 \usage{
 MarginalPlot(a_chain, level = 0.95, title = "Characteristics of a date",
-  colors = T, GridLength = 1024)
+  colors = TRUE, exportFile = NULL, exportFormat = "PNG", GridLength = 1024)
 }
 \arguments{
-\item{a_chain}{numeric vector containing the output of the MCMC algorithm for a one-parameter}
-
-\item{level}{probability corresponding to the level of confidence}
-
-\item{title}{label of the title}
-
-\item{colors}{if TRUE  -> use of colors in the graph}
-
-\item{GridLength}{length of the grid used to estimate the density}
+  \item{a_chain}{numeric vector containing the output of the MCMC algorithm for a one-parameter. The MCMC samples should be in calendar year (BC/AD).}
+  \item{level}{probability corresponding to the level of confidence}
+  \item{title}{label of the title}
+  \item{colors}{if TRUE  -> use of colors in the graph}
+  \item{exportFile}{the name of the file to be saved. If NULL then no graph is saved.}
+  \item{exportFormat}{the format of the export file : SVG or PNG.}
+  \item{GridLength}{length of the grid used to estimate the density}
 }
 \value{
 Draws a plot of the estimated marginal posterior density for the one-parameter and adds the mean and the credible interval at the desired level
@@ -35,11 +33,13 @@ The density is estimated using density() function with n=GridLength.
 \examples{
   data(Events); attach(Events)
 
-  MarginalPlot(Event.1, 0.95)
-  MarginalPlot(Event.1, 0.50)
+  MarginalPlot(Event.1, level = 0.95)
+  MarginalPlot(Event.1, level = 0.50)
 
-  MarginalPlot(Event.2, 0.95, title="Characteristics of Event 2")
-  MarginalPlot(Event.2, 0.95, colors = FALSE)
+  MarginalPlot(Event.2, level = 0.95, title="Characteristics of Event 2")
+  MarginalPlot(Event.2, level = 0.95, colors = FALSE)
+  MarginalPlot(Event.2, level = 0.95, colors = FALSE, 
+  exportFile = "Characteristics_Event.2", exportFormat = "SVG")
 }
 \keyword{ marginal posterior density }
 \keyword{ credible interval }

@@ -9,29 +9,256 @@ shinyServer(function(input, output, session) {
   ####      Onglet :   Import CSV   #####
   
   dataInput <- reactive({
-    file1 <- input$file
+    file1 <- input$file11
     if(is.null(file1)){return()}
-    read.table(file=file1$datapath, sep=input$sep, dec=input$dec, header=TRUE, comment.char="#")
+    
+    if(input$iterationColumn1=="NULL"){ 
+      itCol = NULL
+    }else{
+      itCol = as.numeric(input$iterationColumn1)
+    }
+    if(input$referenceYear1=="NULL"){ 
+      refY = NULL
+    }else{
+      refY = as.numeric(input$referenceYear1)
+    }
+    if(input$rowToWithdraw1=="NULL"){ 
+      rowW = NULL
+    }else{
+      rowW = as.numeric(input$rowToWithdraw1)
+    }    
+    ImportCSV(file=file1$datapath, sep=input$sep11, dec=input$dec11, header=TRUE, comment.char="#", iterationColumn = itCol, referenceYear = refY, rowToWithdraw = rowW)
   })
   
-
-  output$filedf <- renderTable({
+  output$filedf11 <- renderTable({
     if(is.null(dataInput())){return()}
-    input$file
+    input$file11
   })
   
-  output$table <- renderDataTable({
+  output$table11 <- renderDataTable({
     if(is.null(dataInput())){return()}
     datatable(dataInput(), options = list(pageLength = 5, dom = 'tip'), rownames=FALSE)
   })
   
-  output$sum <- renderUI({
+  output$AfficheTableLue11 <- renderUI({
     if(is.null(dataInput()))
       h5("No data imported")
     else 
-      tabsetPanel(tabPanel("About file", tableOutput("filedf")), tabPanel("Data", DT::dataTableOutput("table"))) 
+      tabsetPanel(tabPanel("About file", tableOutput("filedf11")), tabPanel("Data", DT::dataTableOutput("table11"))) 
   })
   
+  
+  dataInput12 <- reactive({
+    file2 <- input$file12
+    if(is.null(file2)){return()}
+    
+    if(input$iterationColumn2=="NULL"){ 
+      itCol = NULL
+    }else{
+      itCol = as.numeric(input$iterationColumn2)
+    }
+    if(input$referenceYear2=="NULL"){ 
+      refY = NULL
+    }else{
+      refY = as.numeric(input$referenceYear2)
+    }
+    if(input$rowToWithdraw2=="NULL"){ 
+      rowW = NULL
+    }else{
+      rowW = as.numeric(input$rowToWithdraw2)
+    }    
+    ImportCSV(file=file2$datapath, sep=input$sep12, dec=input$dec12, header=TRUE, comment.char="#", iterationColumn = itCol, referenceYear = refY, rowToWithdraw = rowW)
+
+  })  
+
+  output$filedf12 <- renderTable({
+    if(is.null(dataInput12())){return()}
+    input$file12
+  })
+  
+  output$table12 <- renderDataTable({
+    if(is.null(dataInput12())){return()}
+    datatable(dataInput12(), options = list(pageLength = 5, dom = 'tip'), rownames=FALSE)
+  })
+  
+  output$AfficheTableLue12 <- renderUI({
+    if(is.null(dataInput12()))
+      h5("No data imported")
+    else 
+      tabsetPanel(tabPanel("About file", tableOutput("filedf12")), tabPanel("Data", DT::dataTableOutput("table12"))) 
+  })
+  
+  
+  ##################################################
+  ####     Creation des groupes de dates     ####
+  ####      pour calcul des MinMax       #############
+  
+  namesG <- reactive({
+    names = colnames(dataInput())
+    return(names)
+  })
+
+  # Initialize reactive values
+  valuesG <- reactiveValues()
+
+  output$ChainsSelectionG <- renderUI({
+    themesG <- namesG()
+    valuesG$namesG <- themesG
+    checkboxGroupInput('ChainsSelectionG', 'Select a series of dates:', themesG)
+  })
+
+  # Add observer on select-all button
+  observeEvent(input$selectAllG, {
+    valuesG$namesG <- namesG()
+    updateCheckboxGroupInput(session, 'ChainsSelectionG', selected =  valuesG$namesG)
+  })
+
+  # Add observer on clear-all button
+  observeEvent(input$clearAllG, {
+    valuesG$namesG <- c()
+    updateCheckboxGroupInput(session, 'ChainsSelectionG', selected =  "none")
+  })
+
+  # data selectionnees
+  selectDataG <- reactive({
+    dataInput()[, input$ChainsSelectionG, drop = FALSE]
+  })
+  
+  # affichage table de donnees
+  output$DatasetG <- renderDataTable({
+    if(is.null(selectDataG())){return( )}
+    datatable(selectDataG(), options = list(pageLength = 5, dom = 'tip'), rownames=FALSE)
+  })
+  
+  ## CreateMinMaxGroup
+  createGroup1 <- eventReactive(input$goButton, {
+    if(input$exportFile=="NULL"){
+      export = NULL
+    }else{
+      export = input$exportFile
+    }
+    position = seq(1, length(input$ChainsSelectionG))
+    dataGroup = CreateMinMaxGroup(selectDataG(), position=position, name =input$name, add=NULL, exportFile=export) 
+  })
+
+  observeEvent(input$goButton, {
+    valuesG$dataGroup <- createGroup1()
+  })
+  observeEvent(input$addButton, {
+    valuesG$dataGroup <- addGroup()
+  })
+  
+  addGroup <- eventReactive(input$addButton, {
+    if(input$exportFile=="NULL"){
+      export = NULL
+    }else{
+      export = input$exportFile
+    }
+    position = seq(1, length(input$ChainsSelectionG))
+    addGroup = CreateMinMaxGroup(selectDataG(), position=position, name =input$name, add=valuesG$dataGroup, exportFile=export)
+    return(addGroup)
+  })
+
+  observeEvent(input$clearButton, {
+    valuesG$dataGroup <- NULL
+  })
+  
+  output$tableGroup <- renderDataTable({
+    if(is.null(valuesG$dataGroup)){return()}
+    datatable(valuesG$dataGroup, options = list(pageLength = 5, dom = 'tip'), rownames=FALSE)
+  })
+
+  output$result13 <- renderUI({
+    if(is.null(dataInput()))
+      h5("No data imported")
+    else
+      tabsetPanel(tabPanel("Data", DT::dataTableOutput("DatasetG")), tabPanel("Groups", DT::dataTableOutput("tableGroup")) )
+  })
+
+  #######################################
+  ####     Onglet : Convergence        ###
+  ##    Checking the Markov chains    ##
+  
+  # Affichage des colonnes du dataframe
+  namesCV <- reactive({
+    names = colnames(dataInput())
+    return(names)
+  })
+  
+  # Initialize reactive values
+  valuesCV <- reactiveValues()
+  
+  output$ChainsSelectionCV <- renderUI({
+    themesCV <- namesCV()
+    valuesCV$namesCV <- themesCV
+    checkboxGroupInput('ChainsSelectionCV', 'Select a series of dates:', themesCV)
+  })
+  
+  # Add observer on select-all button
+  observeEvent(input$selectAllCV, {
+    valuesCV$namesCV <- namesCV()
+    updateCheckboxGroupInput(session, 'ChainsSelectionCV', selected =  valuesCV$namesCV)
+  })
+  
+  # Add observer on clear-all button
+  observeEvent(input$clearAllCV, {
+    valuesCV$namesCV <- c()
+    updateCheckboxGroupInput(session, 'ChainsSelectionCV', selected =  "none")
+  })
+  
+  # data selectionnees
+  selectDataCV <- reactive({
+    dataInput()[, input$ChainsSelectionCV, drop = FALSE]
+  })
+  
+  mcmc_List <- reactive({
+    if(is.null(selectDataCV)){return()}
+    # if(input$iterationColumnCV=="NULL"){ 
+    #   itC = NULL
+    # }else{
+    #   itC = as.numeric(input$iterationColumnCV)
+    # }   
+    coda.mcmc(selectDataCV(), numberChains = input$NbChains)#, iterationColumn = itC)
+  })
+
+  output$MCMCplot <- renderPlot({
+    plot(mcmc_List())
+  })
+
+  GelmanDiag <- reactive({
+    gelman.diag(mcmc_List())
+  })
+  
+  output$GelmanDiagTable <- renderTable({
+    if(is.null(GelmanDiag())) {return()}
+    else {
+        res = GelmanDiag()$psrf
+        dim = dim(res)
+        namesRes = rownames(res)
+        PointEst = NULL
+        UpperCI = NULL
+        names = NULL
+        for (i in 1:dim[1]){
+          names = c(names, namesRes[i])
+          PointEst= c(PointEst, res[i,1])
+          UpperCI = c(UpperCI, res[i,2])
+        }
+        data.frame("names"=names,"Point estimate"=PointEst, "Upper Credible Interval" = UpperCI)
+      
+    }
+  })
+  
+  output$Gelmanplot <- renderPlot({
+    gelman.plot(mcmc_List())
+  })
+  
+
+  output$Diagnostics <- renderUI({
+    if(is.null(selectDataCV()))
+      h5("No data imported")
+    else
+      tabsetPanel(tabPanel("History Plots", plotOutput("MCMCplot")), tabPanel("Gelman Plots", plotOutput("Gelmanplot")), tabPanel("Gelman Diagnostic", tableOutput("GelmanDiagTable")) )
+  })
   
   #######################################
   ####        Onglet : Events        ####
@@ -171,15 +398,16 @@ shinyServer(function(input, output, session) {
     output$MultiDatesPlot <- renderPlot({
       if(is.null( input$multiChainsCI )) { return()}
       position = seq(1, length(input$multiChainsCI))
-      
-      MultiDatesPlot(selectData(), position, intervals =input$intervals, level = input$level, title = input$titleIntervalsplot)
+      if(input$exportFile22IT == "TRUE") { outFile = "IntervalsPlot"} else{ outFile = NULL}
+      MultiDatesPlot(selectData(), position, intervals =input$intervals, level = input$level, title = input$titleIntervalsplot, exportFile=outFile, exportFormat = input$exportFormatIT)
     })#, height = 600, width = 800)
     
     
     output$TempoPlot <- renderPlot({
         if(is.null( input$multiChainsCI )) { return()}
         position = seq(1, length(input$multiChainsCI))
-        TempoPlot(selectData(), position, level = input$level, title = input$titleTempoplot, Gauss=input$GaussCI, count=input$count)
+        if(input$exportFile22 == "TRUE") { outFile = "TempoPlot.png"} else{ outFile = NULL}
+        TempoPlot(selectData(), position, level = input$level, title = input$titleTempoplot, Gauss=input$GaussCI, count=input$count, x.label=input$xlabel, y.label=input$ylabel, colors = input$colors, out.file=outFile)
     })#, height = 600, width = 800)
     
     output$TempoPlotUI <- renderUI({
@@ -207,38 +435,47 @@ shinyServer(function(input, output, session) {
     if(is.null(dataInput()))
       h5("No data imported")
     else 
-    tabsetPanel(tabPanel("Data", DT::dataTableOutput("DatasetCI")), tabPanel("Credible intervals", uiOutput("resultTableMCI")), tabPanel("HPD regions", uiOutput("resultTableMHPD")), tabPanel("Intervals Plot", plotOutput("MultiDatesPlot")), tabPanel("Tempo Plot", plotOutput("TempoPlot"), br(), plotOutput("TempoActivityPlot")))
+    tabsetPanel(tabPanel("Data", DT::dataTableOutput("DatasetCI")), 
+                tabPanel("Credible intervals", uiOutput("resultTableMCI")), 
+                tabPanel("HPD regions", uiOutput("resultTableMHPD")), 
+                tabPanel("Intervals Plot", plotOutput("MultiDatesPlot")), 
+                tabPanel("Tempo Plot", plotOutput("TempoPlot"), br(), plotOutput("TempoActivityPlot"))) 
     
   })
   
   
   ######################################
-  ####         Onglet : Phases      ####
-  ####    Selection d une phase      ###
+  ####         Onglet : Group of dates      ####
+  ####    Selection d un group      ###
+  
+  namesGroups <- reactive({
+    names12 = colnames(dataInput12())
+    return(names12)
+  })
   
   observe({
-    updateSelectInput(session, inputId='variablesalpha', 'Select the minimum of the group (alpha)', choices = names())
-    updateSelectInput(session, inputId='variablesbeta', 'Select the maximum of the group (beta)', choices = names())
+    updateSelectInput(session, inputId='variablesMin', 'Select the minimum of the group', choices = namesGroups())
+    updateSelectInput(session, inputId='variablesMax', 'Select the maximum of the group', choices = namesGroups())
   })
 
   selectChain2 <- reactive({ 
-    dataInput()[,c(input$variablesalpha, input$variablesbeta), drop = FALSE]
+    dataInput12()[,c(input$variablesMin, input$variablesMax), drop = FALSE]
   })
   
-  TestPhaseSelected <- reactive({ 
-    if( sum(ifelse(dataInput()[,1] < dataInput()[,2], 1, 0)) == length(dataInput()[,1])) {return(1)}
+  TestPhaseSelected <- reactive({
+    if( sum(ifelse(dataInput12()[,1] < dataInput12()[,2], 1, 0)) == length(dataInput12()[,1])) {return(1)}
   })
-  
+
   output$selectedTable2 <- renderDataTable({
     if(is.null(selectChain2())) { return( h5("prout")) }
-    else 
+    else
     datatable(selectChain2(), options = list(pageLength = 5, dom = 'tip'), rownames=FALSE)
   })
 
-  PhaseStatisticsText <- reactive({ 
-    PhaseStatistics(dataInput()[,input$variablesalpha, drop=TRUE], dataInput()[,input$variablesbeta, drop=TRUE], level = input$level2) 
+  PhaseStatisticsText <- reactive({
+    PhaseStatistics(dataInput12()[,input$variablesMin, drop=TRUE], dataInput12()[,input$variablesMax, drop=TRUE], level = input$level2)
   })
-  
+
   output$PhaseStatisticsUI <- renderTable({
       res = PhaseStatisticsText()
       if(is.null(res)) {return()}
@@ -257,68 +494,69 @@ shinyServer(function(input, output, session) {
         }
         data.frame("names"=name, "Minimum"=Minimum, "Maximum" = Maximum, "Duration" = Duration)
       }
-  })   
-  
-  PhaseTimeRangeText <- reactive({ 
-    PhaseTimeRange(dataInput()[,input$variablesalpha, drop=TRUE],dataInput()[,input$variablesbeta, drop=TRUE], level = input$level2) 
   })
-  
-  output$PhaseTimeRangeUI <- renderUI({ 
+
+  PhaseTimeRangeText <- reactive({
+    PhaseTimeRange(dataInput12()[,input$variablesMin, drop=TRUE],dataInput12()[,input$variablesMax, drop=TRUE], level = input$level2)
+  })
+
+  output$PhaseTimeRangeUI <- renderUI({
     res = PhaseTimeRangeText()
     tags$div(
       tags$p("For a level of confidence at ", res[1]*100, "%"),
       tags$p("Time Range = [", res[2], "," ,res[3], "]")
-    ) 
+    )
   })
- 
-  
+
+
   output$PhasePlotFunction <- renderPlot({
-    PhasePlot(dataInput()[,input$variablesalpha, drop=TRUE], dataInput()[,input$variablesbeta, drop=TRUE], level = input$level2, title = input$titlePlot2, colors=input$color2 )
+    PhasePlot(dataInput12()[,input$variablesMin, drop=TRUE], dataInput12()[,input$variablesMax, drop=TRUE], level = input$level2, title = input$titlePlot2, colors=input$color2 )
   })
-  output$PhaseDurationPlotFunction <- renderUI({
-    MarginalPlot(dataInput()[,input$variablesbeta, drop=TRUE] - dataInput()[,input$variablesalpha, drop=TRUE], level = input$level2, title = "Duration of the phase", colors=input$color2)
-   })
   
+  output$PhaseDurationPlotFunction <- renderUI({
+    PhaseDurationPlot(dataInput12()[,input$variablesMin, drop=TRUE], dataInput12()[,input$variablesMax, drop=TRUE], level = input$level2, title = "Duration of the phase", colors=input$color2 )
+   })
+
   output$PhasePlotUI <- renderUI({
-    if(is.null(dataInput()))
+    if(is.null(dataInput12()))
       {h5(" Nothing to display ")}
     else{
       plotOutput("PhasePlotFunction")
     }
   })
-  
+
   output$PhaseDurationPlotUI <- renderUI({
-    if(is.null(dataInput()))
+    if(is.null(dataInput12()))
     {h5(" Nothing to display ")}
     else{
-        uiOutput("PhaseDurationPlotFunction")
+      plotOutput("PhaseDurationPlotFunction")
     }
   })
-  
+
   output$result3 <- renderUI({
-    if(is.null(dataInput()))
+    if(is.null(dataInput12()))
       h5("No data imported")
-    else 
-      tabsetPanel(tabPanel("Data", DT::dataTableOutput("selectedTable2")), tabPanel("Marginal Plots", fluidRow( uiOutput("PhasePlotUI"), uiOutput("PhaseDurationPlotUI") ) ), tabPanel("Time range", uiOutput("PhaseTimeRangeUI")), tabPanel("Marginal Statistics", uiOutput("PhaseStatisticsUI")))
-  })  
-  
-  
+    else
+      tabsetPanel(tabPanel("Data selected", DT::dataTableOutput("selectedTable2")), tabPanel("Plot of the characteristics", fluidRow( uiOutput("PhasePlotUI")) ), tabPanel("Time range", uiOutput("PhaseTimeRangeUI")), tabPanel("Marginal Statistics", uiOutput("PhaseStatisticsUI")))
+  })
+
+
   
   #####################################
-  ####  Onglet : Several phases   ####
+  ####  Onglet : Several groups   ####
   
   # Initialize reactive values
   phases <- reactiveValues()
   
   output$PhasesSelection32 <- renderUI({
-    themes <- names()
+    themes <- namesGroups()
     succession$names <- themes
-    checkboxGroupInput('multiPhasesSelection32', 'Select the beginning and the end of each phase:', themes)
+    checkboxGroupInput('multiPhasesSelection32', 'Select the minimum and the maximum of each group:', themes)
   })
   
   # Add observer on select-all button
   observeEvent(input$selectAll32, {
-    succession$names <- names()
+    succession$names <- namesGroups()
     updateCheckboxGroupInput(session, 'multiPhasesSelection32', selected =  succession$names)
   })
   
@@ -330,7 +568,7 @@ shinyServer(function(input, output, session) {
   
   # data selectionnees 
   selectData32 <- reactive({ 
-    dataInput()[, input$multiPhasesSelection32, drop = FALSE]
+    dataInput12()[, input$multiPhasesSelection32, drop = FALSE]
   })
   
   # affichage table de donnees  
@@ -368,7 +606,8 @@ shinyServer(function(input, output, session) {
   })
 
   output$MultiPhasePlotFunction <- renderPlot({
-   MultiPhasePlot(selectData32(), position_minimum = Position_beginning32(), title = input$titleMultiPhases, level = input$levelMultiPhases )
+    if(input$exportFile32 == "TRUE") { outFile = "MultiPhasePlot"} else{ outFile = NULL}
+    MultiPhasePlot(selectData32(), position_minimum = Position_beginning32(), title = input$titleMultiPhases, level = input$levelMultiPhases, exportFile=outFile, exportFormat = input$exportFormat32)
   })
 
   output$MultiPhasePlotUI <- renderUI({
@@ -379,10 +618,10 @@ shinyServer(function(input, output, session) {
   })
   
   output$result32 <- renderUI({
-    if(is.null(dataInput()))
+    if(is.null(dataInput12()))
       h5("No data imported")
     else 
-      tabsetPanel(tabPanel("Data", DT::dataTableOutput("DatasetPhases32")), tabPanel("Time range", uiOutput("MultiPhaseTimeRangeUI")), tabPanel("Phases plot", "Marginal posterior densities of the beginning and the end of the selected phases and their time range interval (segment above the curves) at the desired level." ,uiOutput("MultiPhasePlotUI")))
+      tabsetPanel(tabPanel("Data", DT::dataTableOutput("DatasetPhases32")), tabPanel("Time range", uiOutput("MultiPhaseTimeRangeUI")), tabPanel("Plot of the characteristics", "Marginal posterior densities of the minimum (oldest curve) and the maximum (youngest curve of the same color) of the selected groups and their time range interval (segment above the curves) at the desired level." ,uiOutput("MultiPhasePlotUI")))
   })
   
   
@@ -394,14 +633,14 @@ shinyServer(function(input, output, session) {
   succession <- reactiveValues()
   
   output$PhasesSelection <- renderUI({
-    themes <- names()
+    themes <- namesGroups()
     succession$names <- themes
-    checkboxGroupInput('multiPhasesSelection', 'Select the beginning and the end of each phase:', themes)
+    checkboxGroupInput('multiPhasesSelection', 'Select the minimum and the maximum of each group:', themes)
   })
   
   # Add observer on select-all button
   observeEvent(input$selectAll4, {
-    succession$names <- names()
+    succession$names <- namesGroups()
     updateCheckboxGroupInput(session, 'multiPhasesSelection', selected =  succession$names)
   })
   
@@ -413,7 +652,7 @@ shinyServer(function(input, output, session) {
   
   # data selectionnees 
   selectData4 <- reactive({ 
-    dataInput()[, input$multiPhasesSelection, drop = FALSE]
+    dataInput12()[, input$multiPhasesSelection, drop = FALSE]
   })
   
   # affichage table de donnees  
@@ -441,7 +680,8 @@ shinyServer(function(input, output, session) {
     
     ## Succession plot
     output$MultiSuccessionFunction <- renderPlot({
-      MultiSuccessionPlot( selectData4(), position_minimum = Position_beginning(), level = input$levelSuccession, title = input$titleSuccessionPlot )
+      if(input$exportFile4 == "TRUE") { outFile = "MultiSuccessionPlot"} else{ outFile = NULL}
+      MultiSuccessionPlot(selectData4(), position_minimum = Position_beginning(), level = input$levelSuccession, title = input$titleSuccessionPlot, exportFile=outFile, exportFormat = input$exportFormat4)
     }, height = 600, width = 800 )
 
     output$MultiSuccessionUI <- renderUI({
@@ -525,10 +765,10 @@ shinyServer(function(input, output, session) {
     
    ## Output 
    output$Inputs4 <- renderUI({
-     if(is.null(dataInput()))
+     if(is.null(dataInput12()))
        h5("No data imported")
      else 
-       tabsetPanel(tabPanel("Data", DT::dataTableOutput("DatasetPhases")), tabPanel("Time ranges", uiOutput("MultiPhaseTimeRange4UI")), tabPanel("Transition ranges", uiOutput("MultiPhasesTransitionResults")), tabPanel("Gap ranges", uiOutput("MultiPhasesGapResults")), tabPanel("Succession plot", fluidRow("Curves represent the marginal posterior densities of the beginning and end of each phase. Segments correspond to time range of the phase of the same color,  two-coloured segments correspond to transition interval or to the gap range. A cross instead of a two-coloured segment means that there is no gap range at the desired level of confidence."),fluidRow(uiOutput("MultiSuccessionUI"))  )) 
+       tabsetPanel(tabPanel("Data", DT::dataTableOutput("DatasetPhases")), tabPanel("Time ranges", uiOutput("MultiPhaseTimeRange4UI")), tabPanel("Transition ranges", uiOutput("MultiPhasesTransitionResults")), tabPanel("Gap ranges", uiOutput("MultiPhasesGapResults")), tabPanel("Succession plot", fluidRow("Curves represent the marginal posterior densities of the minimum and maximum of each group. Segments correspond to time range of the group of the same color,  two-coloured segments correspond to transition interval or to the gap range. A cross instead of a two-coloured segment means that there is no gap range at the desired level of confidence."),fluidRow(uiOutput("MultiSuccessionUI"))  )) 
    })
    
    

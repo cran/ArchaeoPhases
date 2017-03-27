@@ -5,7 +5,7 @@
 Phases}
 \description{
 Contains the output of the MCMC algorithm for all the phases (beginning and end) of two successive phases modelled in ChronoModel.
-Phase 1 is assued to be older than Phase 2.
+Phase 1 is assued to be older than Phase 2. The MCMC samples are in calendar year (BC/AD).
 }
 \usage{data(Phases)}
 \format{

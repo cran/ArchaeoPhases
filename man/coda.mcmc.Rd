@@ -9,12 +9,13 @@ This is a wrapper function that extracts parallel chains from the data given and
   output to a single \code{mcmc.list} object and diagnostic tools from "coda" can be used. 
 }
 \usage{
-coda.mcmc(data, numberChains=1)
+coda.mcmc(data, numberChains=1, iterationColumn=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{data}{dataframe containing the output of the MCMC algorithm}
   \item{numberChains}{number of parallel chains. Default = 1.}
+  \item{iterationColumn}{Column corresponding to the iteration values. Default = NULL}
 }
 \value{
  A \code{mcmc.list} object.
@@ -27,20 +28,14 @@ coda.mcmc(data, numberChains=1)
 
 \examples{
     data(Events)
-    
-    # Delete the first column containing the iteration number
-    mcmcList = coda.mcmc(Events[,-1], numberChains = 3) 
+    mcmcList = coda.mcmc(data = Events, numberChains = 3, iterationColumn=1) 
     plot(mcmcList)
     gelman.diag(mcmcList)
-    
-    # Delete the first column containing the iteration number
-    mcmcList = coda.mcmc(Phases[,-1], numberChains = 3) 
-    plot(mcmcList)
     # The multivariate criterion can not be evaluated when a phase 
     # contains only one date. This induces colinearity problems. 
     gelman.diag(mcmcList, multivariate=FALSE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{MCMC list}
+\keyword{MCMC diagnostic}
 

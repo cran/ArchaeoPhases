@@ -6,7 +6,7 @@ TempoActivityPlot(data, position, level=0.95,  count = TRUE,
 title = "Activity plot")
 }
 \arguments{
-   \item{data}{dataframe containing the output of the MCMC algorithm }
+   \item{data}{dataframe containing the output of the MCMC algorithm. The MCMC samples should be in calendar year (BC/AD). }
   \item{position}{numeric vector containing the position of the column corresponding to the MCMC chains of interest}
   \item{level}{probability corresponding to the level of confidence used for the credible interval}
   \item{count}{if TRUE the counting process is given as a number, otherwise it is a probability}
@@ -14,7 +14,7 @@ title = "Activity plot")
 }
 \value{
 
-It calculates the cumulative frequency of specified events by calculating how many events took place before each date in a specified range of dates. 
+It calculates the cumulative frequency of specified events by calculating how many events took place before each date in a specified range of dates. The result is given in calendar year (in format BC/AD).
 
 }
 \description{

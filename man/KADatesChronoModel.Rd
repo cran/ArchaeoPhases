@@ -10,7 +10,7 @@ MCMC samples from the posterior distribution of dates included in the Ksar Akil 
 \usage{data("KADatesChronoModel")}
 
 \format{
-A data frame with 30000 observations on the following 17 variables, one variable per AMS date and the MCMC iteration number. These observations come from 3 parallel chains. 
+A data frame with 30000 observations on the following 17 variables, one variable per AMS date and the MCMC iteration number. These observations come from 3 parallel chains. The MCMC samples are in calendar year (BC/AD).
   \describe{
     \item{\code{iter}}{a numeric vector corresponding to iteration number}
     

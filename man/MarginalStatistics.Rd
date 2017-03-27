@@ -7,7 +7,7 @@
 MarginalStatistics(a_chain, level = 0.95)
 }
 \arguments{
-\item{a_chain}{numeric vector containing the output of the MCMC algorithm for a one-parameter }
+\item{a_chain}{numeric vector containing the output of the MCMC algorithm for a one-parameter. The MCMC samples should be in calendar year (BC/AD). }
 
 \item{level}{probability corresponding to the level of confidence used for the credible interval and the highest density region}
 }
@@ -20,9 +20,10 @@ A matrix of values corresponding to the following summary statistics
   \item{Q1, median, Q3 }{The quantiles of the MCMC chain corresponding to 0.25, 0.50 and 0.75. Use of "quantile" function.}
   \item{CI }{The credible interval corresponding to the desired level. Use of "CredibleInterval" function.}
   \item{HPDR }{The highest posterior density regions corresponding to the desired level. Use of "hdr" function.}
+  The results are given in calendar year (in format BC/AD).
 }
 \description{
-Gives a list of summary statistics resulting from the output of the MCMC algorithm for a one-parameter.
+Gives a list of summary statistics resulting from the output of the MCMC algorithm for a one-parameter. Results are given in calendar year (BC/AD).
 }
 \details{
 The 100*level \% HPD (highest posterior density) region is estimated using HDR function from Package 'hdrcde'.

@@ -5,7 +5,7 @@
  Ksar Akil chronology build with ChronoModel software. Phases part.
 }
 \description{
-MCMC samples from the posterior distribution of dates included in the Ksar Akil chronology build with ChronoModel software.
+MCMC samples from the posterior distribution of dates included in the Ksar Akil chronology build with ChronoModel software. The MCMC samples are in calendar year (BC/AD).
 }
 \usage{data("KAPhasesChronoModel")}
 

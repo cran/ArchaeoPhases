@@ -14,7 +14,7 @@ PhaseTimeRange(PhaseMin_chain, PhaseMax_chain, level = 0.95)
 \item{level}{probability corresponding to the desired level of confidence}
 }
 \value{
-A vector of values containing the desired level of confidence and the endpoints of the shortest time range associated with this desired level.
+A vector of values containing the desired level of confidence and the endpoints of the shortest time range associated with this desired level. The result is given in calendar year (in format BC/AD).
 }
 \description{
 Computes the shortest interval [IntervalInf ; IntervalSup ] that satisfies : P(PhaseMin_chain =< IntervalInf < IntervalSup =< PhaseMax_chain | M) = level.

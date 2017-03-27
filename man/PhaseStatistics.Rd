@@ -7,8 +7,8 @@
 PhaseStatistics(PhaseMin_chain, PhaseMax_chain, level = 0.95)
 }
 \arguments{
-\item{PhaseMin_chain}{numeric vector containing the output of the MCMC algorithm for the minimum of the dates included in the phase}
-\item{PhaseMax_chain}{numeric vector containing the output of the MCMC algorithm for the maximum of the dates included in the phase}
+\item{PhaseMin_chain}{numeric vector containing the output of the MCMC algorithm for the minimum of the dates included in the phase. The MCMC samples should be in calendar year (BC/AD).}
+\item{PhaseMax_chain}{numeric vector containing the output of the MCMC algorithm for the maximum of the dates included in the phase. The MCMC samples should be in calendar year (BC/AD).}
 \item{level}{probability corresponding to the level of confidence used for the credible interval and the highest density region}
 }
 \value{
@@ -17,10 +17,11 @@ PhaseStatistics(PhaseMin_chain, PhaseMax_chain, level = 0.95)
   \item{2}{Statistics of the maximum of the dates included in the phase}
   \item{3}{Statistics of the duration of the dates included in the phase}
   \item{4}{The endpoints of the phase time range}
+  The results are given in calendar year (in format BC/AD).
 
 }
 \description{
-Estimation of several summary statistics of the minimum, the maximum and the duration of the dates included in the phase.
+Estimation of several summary statistics of the minimum, the maximum and the duration of the dates included in the phase. 
 }
 \details{
 The summary statistics are those given by MarginalStatistics function. The time range is given by PhaseTimeRange function.

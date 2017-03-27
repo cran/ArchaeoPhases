@@ -13,29 +13,6 @@ app_ArchaeoPhases <- function() {
 }
 
 
-#####################################################
-#        Create a mcmc.list for CODA users         #
-#####################################################
-
-#' Create a mcmc.list for CODA users
-#' 
-#' 
-#' @export coda.mcmc
-
-coda.mcmc <- function(data, numberChains = 1){
-  
-  dim =dim(data)
-  L = dim[1]/numberChains 
-  
-  obj <- list(NA); 
-  for (i in 1:numberChains){
-    obj[[i]] = mcmc(data[ (L*(i-1)+1):(L*i),], start=1, end=L)
-  }
-  
-  mcmcList = mcmc.list(obj)
-  return(mcmcList)
-}
-
 
 #####################################################
 #             Importing a CSV file                  #
@@ -51,15 +28,89 @@ coda.mcmc <- function(data, numberChains = 1){
 #' @param sep the field separator character for the use of read.csv()
 #' @param comment.char a character vector of length one containing a single character or an empty string for the use of read.csv()
 #' @param header a character vector of length one containing a single character or an empty string for the use of read.csv()
+#' @param iterationColumn the column number containing the iteration number. If specified, the column will be withdrawn. Default = NULL. 
+#' @param referenceYear the year of reference of the date format 
+#' @param rowToWithdraw the number of the row to be withdrawn. Default = NULL.
 #' @return A data frame (data.frame) containing a representation of the data in the file.
 #' @export
 #'
-ImportCSV <- function(file, dec='.', sep=',', comment.char = '#', header = TRUE){
+ImportCSV <- function(file, dec='.', sep=',', comment.char = '#', header = TRUE, iterationColumn = NULL, referenceYear = NULL, rowToWithdraw=NULL){
   
   # importing the CSV file
-  data = read.csv(file, dec = dec, sep=sep, comment.char = comment.char, header=header)
+  data = read.csv(file, dec = dec, sep=sep, comment.char = comment.char, header = header)
+  
+  # Withdrawing the iterations column
+  if (is.null(iterationColumn)){
+    return(data)
+  } else {
+    data = data[,-iterationColumn]
+  }
+  
+  # Withdrawing a row
+  if (is.null(rowToWithdraw)){
+    return(data)
+  } else {
+    data = data[-rowToWithdraw, ]
+  }
+  
+  # Conversion of the MCMC samples in date format cal BP or other to BC/AD
+    if (is.null(referenceYear)){
+      return(data)
+    } else {
+    data2 = data
+    L = length(data)
+    conv <- function(value, T0){
+      T0 - value
+    }
+    for (i in 1:L){
+      if( is.numeric(data[,i]) == TRUE){
+        data2[,i] = sapply(data[,i], conv, referenceYear)
+      }
+    }
+    return(data2)
+  }
+
   
 }
+
+
+
+
+#####################################################
+#        Create a mcmc.list for CODA users         #
+#####################################################
+
+#' Create a mcmc.list for CODA users
+#' 
+#' 
+#' @export coda.mcmc
+
+coda.mcmc <- function(data, numberChains = 1, iterationColumn = NULL){
+  
+  # Withdrawing the iteration column
+  if (!is.null(iterationColumn)){
+    data = data[,-iterationColumn]
+    }
+  
+  dim =dim(data)
+  L = dim[1]/numberChains 
+  
+  # select only numeric columns
+  vect = NULL
+  for(i in 1:dim[2]){
+    if(is.numeric(data[,i])==TRUE) { vect = c(vect,i)}
+  }
+  data2 = data[,vect]
+    
+  obj <- list(NA); 
+  for (i in 1:numberChains){
+    obj[[i]] = mcmc(data2[ (L*(i-1)+1):(L*i),], start=1, end=L)
+  }
+  
+  mcmcList = mcmc.list(obj)
+  return(mcmcList)
+}
+
 
 #####################################################
 #         Constructing the Phases min max            #
@@ -83,14 +134,14 @@ CreateMinMaxGroup <- function(data, position, name ="Phase", add=NULL, exportFil
   
   # importing the CSV file
   dataTemp = data[position]
-  Alpha = apply(dataTemp, 1, min)
-  Beta = apply(dataTemp, 1, max)
+  Min = apply(dataTemp, 1, min)
+  Max = apply(dataTemp, 1, max)
   
-  name.Alpha = paste(name,".Alpha", sep="")
-  name.Beta = paste(name,".Beta", sep="")
+  name.Min = paste(name,".Min", sep="")
+  name.Max = paste(name,".Max", sep="")
   
-  MinMaxCurrentPhase = cbind(Alpha,Beta)
-  colnames(MinMaxCurrentPhase) <- c(name.Alpha,name.Beta)
+  MinMaxCurrentPhase = cbind(Min,Max)
+  colnames(MinMaxCurrentPhase) <- c(name.Min,name.Max)
   
   if (is.null(add)){
     MinMaxPhase = MinMaxCurrentPhase
@@ -216,58 +267,80 @@ MarginalStatistics <- function(a_chain, level=0.95){
 #' @param title label of the title
 #' @param colors if TRUE  -> use of colors in the graph
 #' @param GridLength length of the grid used to estimate the density
+#' @param exportFile the name of the file to be saved. If NULL then no graph is saved. 
+#' @param exportFormat the format of the export file : PNG or SVG.
 #' @return a plot with the density of a_chain + +CI + mean + HDR
 #' @export
-MarginalPlot <- function(a_chain, level=0.95, title="Characteristics of a date", colors=T, GridLength=1024){
+MarginalPlot <- function(a_chain, level=0.95, title="Characteristics of a date", colors=TRUE, exportFile = NULL, exportFormat = "PNG", GridLength=1024){
 
   maxValuex <- min(max(density(a_chain, n=GridLength)$x), 2016)
   minValuex <- min(density(a_chain, n=GridLength)$x)
   
   # Computing min and max values
   x = 10^c(0:10)
-  c =0
-  for(i in 1:length(x)) { if( abs(minValuex/x[i])>1) {c=c+1}}
-  if(c>3){ minValuex = floor(minValuex/x[c-1])*x[c-1]} else {minValuex = floor(minValuex/x[c])*x[c]}
-  d=0
-  for(i in 1:length(x)) { if( abs(maxValuex/x[i])>1) {d=d+1}}
-  if(d>3){ maxValuex = ceiling(maxValuex/x[d-1])*x[d-1]} else {maxValuex = ceiling(maxValuex/x[d])*x[d]}
+  if(minValuex!=0){  
+    c =0
+    for(i in 1:length(x)) { if( abs(minValuex/x[i])>1) {c=c+1}}
+    if(c>3){ minValuex = floor(minValuex/x[c-1])*x[c-1]} else {minValuex = floor(minValuex/x[c])*x[c]}
+  }
+  if(maxValuex!=0){  
+    d=0
+    for(i in 1:length(x)) { if( abs(maxValuex/x[i])>1) {d=d+1}}
+    if(d>3){ maxValuex = ceiling(maxValuex/x[d-1])*x[d-1]} else {maxValuex = ceiling(maxValuex/x[d])*x[d]}
+  }
   
+  # x-axis
   middleValuex <- minValuex + ( maxValuex - minValuex ) / 2
   P1Valuex <- minValuex + ( maxValuex - minValuex ) / 4
   P3Valuex <- middleValuex + ( maxValuex - minValuex ) / 4
   
+  # y-axis
   step <- max(density(a_chain, n=GridLength)$y) /50   # used to draw CI and mean above the curve
   maxValuey <- max(density(a_chain, n=GridLength)$y)
   middleValuey <- maxValuey /2
 
-  if (colors==T){
-    par(mfrow=c(1,1))
-    plot(density(a_chain, n=GridLength), main = title, xlab = "Date", axes = F, xlim=c(minValuex,maxValuex), ylim=c(0,max(density(a_chain, n=GridLength)$y) + step))
-    # abscissa axis
-    axis(1, at=c(minValuex, P1Valuex, middleValuex, P3Valuex, maxValuex) )
-    # ordinate axis
-    axis(2, at=c(0, middleValuey , maxValuey),labels =c(0, round(middleValuey, 3), round(maxValuey, 3)) )
+  if(!is.null(exportFile)) {
+    
+    if(exportFormat == "PNG") {
+      png( filename = paste(exportFile,"png", sep =".") )
+    } 
+    if(exportFormat == "SVG") {
+      svg( filename = paste(exportFile,"svg", sep =".") )
+    }
+    
+  } 
+    if (colors==T){
+      par(mfrow=c(1,1))
+      plot(density(a_chain, n=GridLength), main = title, xlab = "Calendar Year", axes = F, xlim=c(minValuex,maxValuex), ylim=c(0,max(density(a_chain, n=GridLength)$y) + step))
+      # abscissa axis
+      axis(1, at=c(minValuex, P1Valuex, middleValuex, P3Valuex, maxValuex) )
+      # ordinate axis
+      axis(2, at=c(0, middleValuey , maxValuey),labels =c(0, round(middleValuey, 3), round(maxValuey, 3)) )
+      
+      segments(CredibleInterval(a_chain, level)[2], 0, CredibleInterval(a_chain, level)[3], 0, lwd=6, col = 4)
+      points(mean(a_chain), 0 , lwd=6, col = 2)
+      
+      # legend
+      legend(P3Valuex, maxValuey, c("Density", "Credible Interval", "Mean"), lty=c(1, 1, 0), bty="n", pch=c(NA, NA,1), col = c("black","blue","red"), lwd=c(1,6,6), x.intersp=0.5, cex=0.9)
+      
+    } else {
+      par(mfrow=c(1,1))
+      plot(density(a_chain, n=GridLength), main = title, xlab = "Calendar Year", axes = F, xlim=c(minValuex,maxValuex), ylim=c(0,max(density(a_chain, n=GridLength)$y) + step))
+      # abscissa axis
+      axis(1, at=c(minValuex, P1Valuex, middleValuex, P3Valuex, maxValuex) )
+      # ordinate axis
+      axis(2, at=c(0, middleValuey , maxValuey),labels =c(0, round(middleValuey, 3), round(maxValuey, 3)) )
+      
+      segments(CredibleInterval(a_chain, level)[2], 0, CredibleInterval(a_chain, level)[3], 0, lwd=6, lty=1)
+      points(mean(a_chain), 0 , lwd=6, pch=1)
+      
+      # legend
+      legend(P3Valuex, maxValuey, c("Density", "Credible Interval", "Mean"), lty=c(1,1,0), pch=c(NA,NA,1), bty="n", lwd=c(1,6,6), x.intersp=0.5, cex=0.9)
+    }
+  if(!is.null(exportFile)) {
 
-    segments(CredibleInterval(a_chain, level)[2], 0, CredibleInterval(a_chain, level)[3], 0, lwd=6, col = 4)
-    points(mean(a_chain), 0 , lwd=6, col = 2)
-
-    # legend
-    legend(P3Valuex, maxValuey, c("Density", "Credible Interval", "Mean"), lty=c(1, 1, 0), bty="n", pch=c(NA, NA,1), col = c("black","blue","red"), lwd=c(1,6,6), x.intersp=0.5, cex=0.9)
-
-  }else {
-    par(mfrow=c(1,1))
-    plot(density(a_chain, n=GridLength), main = title, xlab = "Date", axes = F, xlim=c(minValuex,maxValuex), ylim=c(0,max(density(a_chain, n=GridLength)$y) + step))
-    # abscissa axis
-    axis(1, at=c(minValuex, P1Valuex, middleValuex, P3Valuex, maxValuex) )
-    # ordinate axis
-    axis(2, at=c(0, middleValuey , maxValuey),labels =c(0, round(middleValuey, 3), round(maxValuey, 3)) )
-
-    segments(CredibleInterval(a_chain, level)[2], 0, CredibleInterval(a_chain, level)[3], 0, lwd=6, lty=1)
-    points(mean(a_chain), 0 , lwd=6, pch=1)
-
-    # legend
-    legend(P3Valuex, maxValuey, c("Density", "Credible Interval", "Mean"), lty=c(1,1,0), pch=c(NA,NA,1), bty="n", lwd=c(1,6,6), x.intersp=0.5, cex=0.9)
-  }
+    dev.off()
+  } 
 
 }
 
@@ -455,39 +528,55 @@ PhaseStatistics <- function(PhaseMin_chain, PhaseMax_chain, level=0.95){
 #' @param title The Title of the graph
 #' @param colors if TRUE  -> use of colors in the graph
 #' @param GridLength length of the grid used to estimate the density
+#' @param exportFile the name of the file to be saved. If NULL then no graph is saved. 
+#' @param exportFormat the format of the export file : PNG or SVG.
 #' @return A plot with the density of PhaseMin_chain + PhaseMax_chain + additionnal summary statitsics
 #' @export
 
-PhasePlot <- function(PhaseMin_chain, PhaseMax_chain, level=0.95, title = "Characterisation of a phase", colors = T, GridLength=1024){
+PhasePlot <- function(PhaseMin_chain, PhaseMax_chain, level=0.95, title = "Characterisation of a group of dates", colors = TRUE, exportFile = NULL, exportFormat = "PNG", GridLength=1024){
 
   if(length(PhaseMax_chain) != length(PhaseMin_chain)) { print('Error : the parameters do not have the same length')}   # test the length of both chains
   else{
 
   if( sum(ifelse(PhaseMin_chain <= PhaseMax_chain, 1, 0)) == length(PhaseMin_chain) ) {
 
-    minValuex <- min(density(PhaseMin_chain, n=GridLength)$x)
+    minValuex <- min( density(PhaseMin_chain, n=GridLength)$x)
     maxValuex <- min(max(density(PhaseMax_chain, n=GridLength)$x), 2016)
-    x = 10^c(0:10)
-    c =0
-    for(i in 1:length(x)) { if( abs(minValuex/x[i])>1) {c=c+1}}
-    if(c>3){ minValuex = floor(minValuex/x[c-1])*x[c-1]} else {minValuex = floor(minValuex/x[c])*x[c]}
-    d=0
-    for(i in 1:length(x)) { if( abs(maxValuex/x[i])>1) {d=d+1}}
-    if(d>3){ maxValuex = ceiling(maxValuex/x[d-1])*x[d-1]} else {maxValuex = ceiling(maxValuex/x[d])*x[d]}
     
+    x = 10^c(0:10)
+    if(minValuex!=0){  
+      c =0
+      for(i in 1:length(x)) { if( abs(minValuex/x[i])>1) {c=c+1}}
+      if(c>3){ minValuex = floor(minValuex/x[c-1])*x[c-1]} else {minValuex = floor(minValuex/x[c])*x[c]}
+    }
+    if(maxValuex!=0){  
+      d=0
+      for(i in 1:length(x)) { if( abs(maxValuex/x[i])>1) {d=d+1}}
+      if(d>3){ maxValuex = ceiling(maxValuex/x[d-1])*x[d-1]} else {maxValuex = ceiling(maxValuex/x[d])*x[d]}
+    }
+    # x-axis
     middleValuex <- ( maxValuex + minValuex) / 2
     P1Valuex <- minValuex + ( maxValuex - minValuex ) / 4
     P3Valuex <- middleValuex + ( maxValuex - minValuex ) / 4
 
-
+    # y-axis
     maxValuey <- max ( max(density(PhaseMin_chain, n=GridLength)$y) , max(density(PhaseMax_chain, n=GridLength)$y))
     middleValuey <- maxValuey /2
     step <- maxValuey  /20
 
-    if (colors==T){
+    # Options for export
+    if(!is.null(exportFile)) {
+      if(exportFormat == "PNG") {
+        png( filename = paste(exportFile,"png", sep =".") )
+      } 
+      if(exportFormat == "SVG") {
+        svg( filename = paste(exportFile,"svg", sep =".") )
+      }
+    } 
+    if (colors==TRUE){
     # first graph
     par(las=1, mfrow=c(1,1), cex.axis=0.8)
-    plot(density(PhaseMax_chain, n=GridLength), main = title, xlab="Date", axes = F, ylim=c(0,maxValuey+step), xlim=c(minValuex, maxValuex), lty =1, lwd=2, col="steelblue4")
+    plot(density(PhaseMax_chain, n=GridLength), main = title, xlab="Calendar Year", axes = F, ylim=c(0,maxValuey+step), xlim=c(minValuex, maxValuex), lty =1, lwd=2, col="steelblue4")
     lines(density(PhaseMin_chain, n=GridLength), lty =1, lwd=2, col ="steelblue1")
 
     # abscissa axis
@@ -517,7 +606,7 @@ PhasePlot <- function(PhaseMin_chain, PhaseMax_chain, level=0.95, title = "Chara
 
       # first graph
       par(las=1, mfrow=c(1,1), cex.axis=0.8)
-      plot(density(PhaseMax_chain, n=GridLength), main = title, xlab="Date", axes = F, ylim=c(0,maxValuey+step), xlim=c(minValuex, maxValuex), lty =2, lwd=2)
+      plot(density(PhaseMax_chain, n=GridLength), main = title, xlab="Calendar Year", axes = F, ylim=c(0,maxValuey+step), xlim=c(minValuex, maxValuex), lty =2, lwd=2)
       lines(density(PhaseMin_chain, n=GridLength), lty =3, lwd=2)
 
       # abscissa axis
@@ -544,6 +633,10 @@ PhasePlot <- function(PhaseMin_chain, PhaseMax_chain, level=0.95, title = "Chara
       legend(P3Valuex, maxValuey, c("Density of the Minimum", "Density of the Maximum", "with Credible Interval", "and Mean (o)", " Phase Time Range"), lty=c(3,2,0,0,1), bty="n",col = c(1,1,1,1,1), lwd=c(2,2,6,6,6), x.intersp=0.5, cex=0.9)
 
     }
+    
+    if(!is.null(exportFile)) {
+    dev.off()
+    } 
 
   } else {
     print('Error : PhaseMin_chain should be older than PhaseMax_chain')
@@ -567,10 +660,12 @@ PhasePlot <- function(PhaseMin_chain, PhaseMax_chain, level=0.95, title = "Chara
 #' @param level probability corresponding to the level of confidence used for the credible interval and the time range
 #' @param title The Title of the graph
 #' @param colors if TRUE  -> use of colors in the graph
+#' @param exportFile the name of the file to be saved. If NULL then no graph is saved. 
+#' @param exportFormat the format of the export file : PNG or SVG.
 #' @param GridLength length of the grid used to estimate the density
 #' @return A plot with the density of the duration of the phase + additionnal summary statitsics
 #' @export
-PhaseDurationPlot <- function(PhaseMin_chain, PhaseMax_chain, level=0.95, title = "Duration of the phase", colors = T, GridLength=1024){
+PhaseDurationPlot <- function(PhaseMin_chain, PhaseMax_chain, level=0.95, title = "Duration of a group of dates", colors = TRUE, exportFile = NULL, exportFormat = "PNG", GridLength=1024){
   
   if(length(PhaseMax_chain) != length(PhaseMin_chain)) { print('Error : the parameters do not have the same length')}   # test the length of both chains
   else{
@@ -590,9 +685,20 @@ PhaseDurationPlot <- function(PhaseMin_chain, PhaseMax_chain, level=0.95, title 
       maxValuey <- max(density(a_chain, n=GridLength)$y)
       middleValuey <- maxValuey /2
       
+      # Options for export
+      if(!is.null(exportFile)) {
+        
+        if(exportFormat == "PNG") {
+          png( filename = paste(exportFile,"png", sep =".") )
+        } 
+        if(exportFormat == "SVG") {
+          svg( filename = paste(exportFile,"svg", sep =".") )
+        }
+        
+      } 
       if (colors==T){
         par(mfrow=c(1,1))
-        plot(density(a_chain, n=GridLength), main = title, xlab = "Time (year)", axes = F, ylim=c(0,max(density(a_chain, n=GridLength)$y) + step))
+        plot(density(a_chain, n=GridLength), main = title, xlab = "Calendar Year", axes = F, ylim=c(0,max(density(a_chain, n=GridLength)$y) + step))
         # abscissa axis
         axis(1, at=c(minValuex, P1Valuex, middleValuex, P3Valuex, maxValuex) , labels =c(floor(minValuex), floor(P1Valuex), floor(middleValuex), floor(P3Valuex), floor(maxValuex )))
         # ordinate axis
@@ -606,7 +712,7 @@ PhaseDurationPlot <- function(PhaseMin_chain, PhaseMax_chain, level=0.95, title 
         
       }else {
         par(mfrow=c(1,1))
-        plot(density(a_chain, n=GridLength), main = title, xlab = "Time (year)", axes = F, ylim=c(0,max(density(a_chain, n=GridLength)$y) + step))
+        plot(density(a_chain, n=GridLength), main = title, xlab = "Calendar Year", axes = F, ylim=c(0,max(density(a_chain, n=GridLength)$y) + step))
         # abscissa axis
         axis(1, at=c(minValuex, P1Valuex, middleValuex, P3Valuex, maxValuex) , labels =c(floor(minValuex), floor(P1Valuex), floor(middleValuex), floor(P3Valuex), floor(maxValuex )))
         # ordinate axis
@@ -619,7 +725,10 @@ PhaseDurationPlot <- function(PhaseMin_chain, PhaseMax_chain, level=0.95, title 
         legend(P3Valuex, maxValuey, c("Density", "Credible Interval", "Mean"), lty=c(1,1,0), pch=c(NA,NA,1), bty="n", lwd=c(1,6,6), x.intersp=0.5, cex=0.9)
       }
       
-      
+      # options for export
+      if(!is.null(exportFile)) {
+        dev.off()
+      } 
       
       }
       
@@ -731,11 +840,14 @@ PhasesTransition <- function(Phase1Max_chain, Phase2Min_chain, level=0.95){
 #' @param Phase2Max_chain numeric vector containing the output of the MCMC algorithm for the maximum of the events included in the youngest phase
 #' @param level probability corresponding to the level of confidence
 #' @param title title of the graph
+#' @param exportFile the name of the file to be saved. If NULL then no graph is saved. 
+#' @param exportFormat the format of the export file : PNG or SVG.
 #' @param GridLength length of the grid used to estimate the density
 #' @return a plot of all densities + CI + mean + HDR
 #' @export
 
-SuccessionPlot <- function(Phase1Min_chain, Phase1Max_chain, Phase2Min_chain, Phase2Max_chain, level=0.95,  title = "Characterisation of a succession of phases", GridLength=1024){
+SuccessionPlot <- function(Phase1Min_chain, Phase1Max_chain, Phase2Min_chain, Phase2Max_chain, level=0.95,  title = "Characterisation of a succession of groups", 
+                           exportFile = NULL, exportFormat = "PNG", GridLength=1024){
 
 
   if(length(Phase1Max_chain) != length(Phase2Min_chain)) { stop('Error : the parameters do not have the same length')} # test for the length of both chains
@@ -750,17 +862,23 @@ SuccessionPlot <- function(Phase1Min_chain, Phase1Max_chain, Phase2Min_chain, Ph
     maxValuex <- min( max(density(Phase1Max_chain, n=GridLength)$x, density(Phase2Max_chain, n=GridLength)$x), 2016)
     
     x = 10^c(0:10)
-    c =0
-    for(i in 1:length(x)) { if( abs(minValuex/x[i])>1) {c=c+1}}
-    if(c>3){ minValuex = floor(minValuex/x[c-1])*x[c-1]} else {minValuex = floor(minValuex/x[c])*x[c]}
-    d=0
-    for(i in 1:length(x)) { if( abs(maxValuex/x[i])>1) {d=d+1}}
-    if(d>3){ maxValuex = ceiling(maxValuex/x[d-1])*x[d-1]} else {maxValuex = ceiling(maxValuex/x[d])*x[d]}
+    if(minValuex!=0){  
+      c =0
+      for(i in 1:length(x)) { if( abs(minValuex/x[i])>1) {c=c+1}}
+      if(c>3){ minValuex = floor(minValuex/x[c-1])*x[c-1]} else {minValuex = floor(minValuex/x[c])*x[c]}
+    }
+    if(maxValuex!=0){  
+      d=0
+      for(i in 1:length(x)) { if( abs(maxValuex/x[i])>1) {d=d+1}}
+      if(d>3){ maxValuex = ceiling(maxValuex/x[d-1])*x[d-1]} else {maxValuex = ceiling(maxValuex/x[d])*x[d]}
+    }
     
+    # x-axis
     middleValuex <- ( maxValuex + minValuex) / 2
     P1Valuex <- minValuex + ( maxValuex - minValuex ) / 4
     P3Valuex <- middleValuex + ( maxValuex - minValuex ) / 4
-
+    
+    # y-axis
     maxValuey <- max ( max(density(Phase1Min_chain, n=GridLength)$y) , max(density(Phase1Max_chain, n=GridLength)$y), max(density(Phase2Min_chain, n=GridLength)$y) , max(density(Phase2Max_chain, n=GridLength)$y))
     middleValuey <- maxValuey /2
     minValuey <- min ( min(density(Phase1Min_chain, n=GridLength)$y) , min(density(Phase1Max_chain, n=GridLength)$y), min(density(Phase2Min_chain, n=GridLength)$y) , min(density(Phase2Max_chain, n=GridLength)$y))
@@ -768,8 +886,20 @@ SuccessionPlot <- function(Phase1Min_chain, Phase1Max_chain, Phase2Min_chain, Ph
     haut = seq(minValuey,maxValuey,length.out=5)
     middleA <- maxValuey+ (haut[1] + haut[2]) / 2
 
+    # Options for export
+    if(!is.null(exportFile)) {
+      
+      if(exportFormat == "PNG") {
+        png( filename = paste(exportFile,"png", sep =".") )
+      } 
+      if(exportFormat == "SVG") {
+        svg( filename = paste(exportFile,"svg", sep =".") )
+      }
+      
+    } 
+    
     par(las=1, mfrow=c(1,1), cex.axis=0.8)
-    plot(density(Phase1Max_chain, n=GridLength), main = title, ylab="Density", xlab = "Date", ylim=c(0,maxValuey+maxValuey), xlim=c(minValuex, maxValuex), bty='n',lty =1, lwd=2, axes=F, col = "steelblue")
+    plot(density(Phase1Max_chain, n=GridLength), main = title, ylab="Density", xlab = "Calendar Year", ylim=c(0,maxValuey+maxValuey), xlim=c(minValuex, maxValuex), bty='n',lty =1, lwd=2, axes=F, col = "steelblue")
     lines(density(Phase1Min_chain, n=GridLength), lty =1, lwd=2, col = "steelblue")
 
     # abscissa axis
@@ -804,6 +934,11 @@ SuccessionPlot <- function(Phase1Min_chain, Phase1Max_chain, Phase2Min_chain, Ph
     text(minValuex, maxValuey+haut[4],"Transition",srt =90)
     text(minValuex, maxValuey+haut[5],"Gap",srt =90)
 
+    # options for export
+    if(!is.null(exportFile)) {
+      dev.off()
+    } 
+    
   }
 
   }
@@ -943,10 +1078,12 @@ MultiHPD <- function(data, position, level=0.95){
 #' @param position numeric vector containing the position of the column corresponding to the MCMC chains of interest
 #' @param level probability corresponding to the level of confidence
 #' @param title title of the graph
+#' @param exportFile the name of the file to be saved. If NULL then no graph is saved. 
+#' @param exportFormat the format of the export file : PNG or SVG.
 #' @return a plot of the endpoints of the credible intervals of a series of dates
 #' @export
 
-MultiDatesPlot <- function(data, position, level=0.95, intervals = c("CI", "HPD"), title = "Plot of intervals"){
+MultiDatesPlot <- function(data, position, level=0.95, intervals = "CI", title = "Plot of intervals", labelXaxis = "Calendar Year", exportFile = NULL, exportFormat = "PNG"){
   
   if(intervals =="CI"){
   Bornes = MultiCredibleInterval(data, position, level=level) 
@@ -966,9 +1103,11 @@ MultiDatesPlot <- function(data, position, level=0.95, intervals = c("CI", "HPD"
   P3Valuex <- middleValuex + ( maxValuex - minValuex ) / 4
   seq = seq(minValuex, maxValuex)
   
+  
+  ## Graph
   par(las=1, mfrow=c(1,1), cex.axis=0.8, mar=c(5,6,4,2))
-  plot(0, main = title, ylab="", xlab = "Time", ylim=c(0, NbDates), xlim=c(minValuex, maxValuex), type="n", axes=F)
-
+  plot(0, main = title, ylab="", xlab = labelXaxis, ylim=c(0, NbDates), xlim=c(minValuex, maxValuex), type="n", axes=F)
+  grid()
   # abscissa axis
   axis(1, at=c(minValuex, P1Valuex, middleValuex, P3Valuex, maxValuex) ) 
   # ordinate axis
@@ -977,6 +1116,30 @@ MultiDatesPlot <- function(data, position, level=0.95, intervals = c("CI", "HPD"
   ## Phase Time Range
   for (i in 1:NbDates ) { for (j in seq(2,(nbCol-1), by = 2)) { segments(Ordered[i,j], i, Ordered[i,j+1], i, lwd=6) } }
  
+  # Options for export
+  if(!is.null(exportFile)) {
+    
+    if(exportFormat == "PNG") {
+      png( filename = paste(exportFile,"png", sep =".") )
+    } 
+    if(exportFormat == "SVG") {
+      svg( filename = paste(exportFile,"svg", sep =".") )
+    }
+    
+    par(las=1, mfrow=c(1,1), cex.axis=0.8, mar=c(5,6,4,2))
+    plot(0, main = title, ylab="", xlab = labelXaxis, ylim=c(0, NbDates), xlim=c(minValuex, maxValuex), type="n", axes=F)
+    grid()
+    # abscissa axis
+    axis(1, at=c(minValuex, P1Valuex, middleValuex, P3Valuex, maxValuex) ) 
+    # ordinate axis
+    axis(2, at=1:NbDates, labels =DatesNames, las =2)
+    
+    ## Phase Time Range
+    for (i in 1:NbDates ) { for (j in seq(2,(nbCol-1), by = 2)) { segments(Ordered[i,j], i, Ordered[i,j+1], i, lwd=6) } }
+    
+    dev.off()
+  } 
+  
 }
 
 
@@ -985,7 +1148,7 @@ MultiDatesPlot <- function(data, position, level=0.95, intervals = c("CI", "HPD"
 #         Multiple Phase Time Range                 #
 #####################################################
 
-#' Phase Time Range for multiple phases
+#' Phase Time Range for multiple groups
 #'
 #' Computes the shortest interval that satisfies : P(PhaseMin < IntervalInf < IntervalSup < PhaseMax | M) = level for each phase
 #'
@@ -1010,13 +1173,6 @@ MultiPhaseTimeRange <- function(data, position_minimum, position_maximum=positio
   names_beginning <- names(data)[position_minimum]
   names_end <- names(data)[position_maximum]
   
-  # Construction of a new dataset containing the columns corresponding to the phases of interest
-  phase = matrix(ncol = L*2, nrow=nrow(data))
-  for (i in 1:L) {
-    phase[,2*i-1] = data[,position_minimum[i]]
-    phase[,2*i] = data[,position_maximum[i]]
-  }
-  
   # matrix of results
   result = matrix(nrow=L, ncol=3)
   colnames(result)<- c("Level","TimeRangeInf", "TimeRangeSup")
@@ -1026,7 +1182,7 @@ MultiPhaseTimeRange <- function(data, position_minimum, position_maximum=positio
   rownames(result)<- phasenames
   
   for (i in 1:L){
-    result[i,] = PhaseTimeRange(phase[,2*i-1], phase[,2*i], level=level)
+    result[i,] = PhaseTimeRange( data[,position_minimum[i]], data[,position_maximum[i]], level=level)
   }
   
   return(result)
@@ -1036,15 +1192,15 @@ MultiPhaseTimeRange <- function(data, position_minimum, position_maximum=positio
 }
 
 #####################################################
-#       Hiatus between a succession of  phases      #
+#       Hiatus between a succession of  groups      #
 #####################################################
 
-#'  Gap/Hiatus between a succession of phases (for phases in temporal order constraint)
+#'  Gap/Hiatus between a succession of groups (for groups in temporal order constraint)
 #'
-#' Finds if it exists a gap between two phases that is the longest interval that satisfies : P(Phase1Max < IntervalInf < IntervalSup < Phase2Min | M) = level
+#' Finds if it exists a gap between two groups that is the longest interval that satisfies : P(Phase1Max < IntervalInf < IntervalSup < Phase2Min | M) = level
 #'
 #' @param data dataframe containing the output of the MCMC algorithm 
-#' @param position_minimum numeric vector containing the column number corresponding to the minimum of the events included in each phase
+#' @param position_minimum numeric vector containing the column number corresponding to the minimum of the events included in each group
 #' @param position_maximum numeric vector containing the column number corresponding to the end of the phases set in the same order as in position_minimum
 #' @param level probability corresponding to the level of confidence
 #' @return The endpoints of the longest gap
@@ -1063,13 +1219,6 @@ MultiPhasesGap <- function(data, position_minimum, position_maximum = position_m
   names_Min <- names(data)[position_minimum]
   names_Max <- names(data)[position_maximum]
   
-  # Construction of a new dataset containing the columns corresponding to the phases of interest
-  phase = matrix(ncol = L*2, nrow=nrow(data))
-  for (i in 1:L) {
-    phase[,2*i-1] = data[,position_minimum[i]]
-    phase[,2*i] = data[,position_maximum[i]]
-  }
-  
   # matrix of results
   result = matrix(nrow=L-1, ncol=3)
   colnames(result)<- c("Level","HiatusIntervalInf", "HiatusIntervalSup")
@@ -1079,7 +1228,7 @@ MultiPhasesGap <- function(data, position_minimum, position_maximum = position_m
   rownames(result)<- phasenames
   
   for (i in 1:(L-1)){
-    result[i,] = PhasesGap(phase[,2*i], phase[,2*i+1], level=level)
+    result[i,] = PhasesGap( data[,position_maximum[i]], data[,position_minimum[i+1]], level=level)
   }
   
   return(result)
@@ -1093,13 +1242,13 @@ MultiPhasesGap <- function(data, position_minimum, position_maximum = position_m
 #         Multiple Phases Transition               #
 #####################################################
 
-#'  Transition range for a succession of phases (for phases in temporal order constraint)
+#'  Transition range for a succession of groups (for groups in temporal order constraint)
 #'
 #' Finds if it exists the shortest interval that satisfies : P(TransitionRangeInf < Phase1Max < Phase2Min < TransitionRangeSup  | M) = level
 #'
 #' @param data dataframe containing the output of the MCMC algorithm 
-#' @param position_minimum numeric vector containing the column number corresponding to the minimum of the events included in each phase
-#' @param position_maximum numeric vector containing the column number corresponding to the end of the phases set in the same order as in position_minimum
+#' @param position_minimum numeric vector containing the column number corresponding to the minimum of the events included in each group
+#' @param position_maximum numeric vector containing the column number corresponding to the end of the groups set in the same order as in position_minimum
 #' @param level probability corresponding to the level of confidence
 #' @return the endpoints of the transition interval
 #' @export
@@ -1117,13 +1266,6 @@ MultiPhasesTransition <- function(data, position_minimum, position_maximum = pos
   #names
   names_min <- names(data)[position_minimum]
   names_max <- names(data)[position_maximum]
-  
-  # Construction of a new dataset containing the columns corresponding to the phases of interest
-  phase = matrix(ncol = L*2, nrow=nrow(data))
-  for (i in 1:L) {
-    phase[,2*i-1] = data[,position_minimum[i]]
-    phase[,2*i] = data[,position_maximum[i]]
-  }
 
   # matrix of results
   result = matrix(nrow=L-1, ncol=3)
@@ -1134,7 +1276,7 @@ MultiPhasesTransition <- function(data, position_minimum, position_maximum = pos
   rownames(result)<- phasenames
 
   for (i in 1:(L-1)){
-    result[i,] = PhaseTimeRange(phase[,2*i], phase[,2*i+1], level=level)
+    result[i,] = PhaseTimeRange( data[,position_maximum[i]], data[,position_minimum[i+1]], level=level)
   }
 
   return(result)
@@ -1152,17 +1294,21 @@ MultiPhasesTransition <- function(data, position_minimum, position_maximum = pos
 
 #' Successive Phases Density Plots (for phases in temporal order constraint)
 #'
-#' Plot of the densities of several successive phases + statistics (mean, CI, HPDR)
+#' Plot of the densities of several successive groups + statistics (mean, CI, HPDR)
 #'
 #' @param data dataframe containing the output of the MCMC algorithm 
-#' @param position_minimum numeric vector containing the column number corresponding to the minimum of the events included in each phase
-#' @param position_maximum numeric vector containing the column number corresponding to the end of the phases set in the same order as in position_minimum
+#' @param position_minimum numeric vector containing the column number corresponding to the minimum of the events included in each group
+#' @param position_maximum numeric vector containing the column number corresponding to the end of the groups set in the same order as in position_minimum
 #' @param level probability corresponding to the level of confidence
 #' @param title title of the graph
+#' @param colors vector of colors corresponding to each group of dates
+#' @param exportFile the name of the file to be saved. If NULL then no graph is saved. 
+#' @param exportFormat the format of the export file : PNG or SVG.
 #' @return a plot of all densities + CI + mean + HDR
 #' @export
 
-MultiSuccessionPlot <- function(data, position_minimum, position_maximum = position_minimum+1, level=0.95, title = "Characterisation of a succession of phases"){
+MultiSuccessionPlot <- function(data, position_minimum, position_maximum = position_minimum+1, level=0.95, title = "Characterisation of a succession of groups", 
+                                colors = NULL, exportFile = NULL, exportFormat = "PNG"){
   
   if (length(position_minimum)!= length(position_maximum)) {
     print('Error : the position vectors do not have the same length')
@@ -1180,38 +1326,49 @@ MultiSuccessionPlot <- function(data, position_minimum, position_maximum = posit
       phase[,2*i-1] = data[,position_minimum[i]]
       phase[,2*i] = data[,position_maximum[i]]
       
-      densityX[,2*i-1] = density(data[,position_minimum[i]])$x
-      densityX[,2*i] = density(data[,position_maximum[i]])$x
+      densityX[,2*i-1] = density(data[,position_minimum[i]], n = GridLength)$x
+      densityX[,2*i] = density(data[,position_maximum[i]], n = GridLength)$x
       
-      densityY[,2*i-1] = density(data[,position_minimum[i]])$y
-      densityY[,2*i] = density(data[,position_maximum[i]])$y
+      densityY[,2*i-1] = density(data[,position_minimum[i]], n = GridLength)$y
+      densityY[,2*i] = density(data[,position_maximum[i]], n = GridLength)$y
     }
     
     minValuex <- min (apply(densityX,2,min))
     maxValuex <- min(max( apply(densityX,2,max) ), 2016)
-    x = 10^c(0:10)
-    c =0
-    for(i in 1:length(x)) { if( abs(minValuex/x[i])>1) {c=c+1}}
-    if(c>3){ minValuex = floor(minValuex/x[c-1])*x[c-1]} else {minValuex = floor(minValuex/x[c])*x[c]}
-    d=0
-    for(i in 1:length(x)) { if( abs(maxValuex/x[i])>1) {d=d+1}}
-    if(d>3){ maxValuex = ceiling(maxValuex/x[d-1])*x[d-1]} else {maxValuex = ceiling(maxValuex/x[d])*x[d]}
     
+    # rounding up x and y values
+    x = 10^c(0:10)
+    if(minValuex!=0){  
+      c =0
+      for(i in 1:length(x)) { if( abs(minValuex/x[i])>1) {c=c+1}}
+      if(c>3){ minValuex = floor(minValuex/x[c-1])*x[c-1]} else {minValuex = floor(minValuex/x[c])*x[c]}
+    }
+    if(maxValuex!=0){  
+      d=0
+      for(i in 1:length(x)) { if( abs(maxValuex/x[i])>1) {d=d+1}}
+      if(d>3){ maxValuex = ceiling(maxValuex/x[d-1])*x[d-1]} else {maxValuex = ceiling(maxValuex/x[d])*x[d]}
+    }
+    # x-axis values
     middleValuex <- ( maxValuex + minValuex) / 2
     P1Valuex <- minValuex + ( maxValuex - minValuex ) / 4
     P3Valuex <- middleValuex + ( maxValuex - minValuex ) / 4
-    
+    # y-axis values
     maxValuey <- max( apply(densityY,2,max))
     middleValuey <- maxValuey /2
     minValuey <- min( apply(densityY,2,min))
+    # 
+    haut = seq(minValuey,maxValuey,length.out=(2*L+2) )
     
-    haut = seq(minValuey,maxValuey,length.out=(3*L+1) )
+    # Options for colors
+    if (is.null(colors)) {
+      pal = rainbow(L)
+    } else {
+      pal = colors
+    }
     
-    pal = rainbow(L)
-    #colors = pal[sample(x=1:L,L)]
-    
+    ## Graph
     par(las=1, mfrow=c(1,1), cex.axis=0.8)
-    plot(density(phase[,1], n=GridLength), main = title, ylab="Density", xlab = "Date", ylim=c(0,2*maxValuey), xlim=c(minValuex, maxValuex), bty='n',lty =1, lwd=2, axes=F, col = pal[1])
+    plot(density(phase[,1], n=GridLength), main = title, ylab="Density", xlab = "Calendar Year", ylim=c(0,2.5*maxValuey), xlim=c(minValuex, maxValuex), bty='n',lty =1, lwd=2, axes=F, col = pal[1])
     lines(density(phase[,2], n=GridLength), lty =1, lwd=2, col = pal[1])
     
     # abscissa axis
@@ -1229,30 +1386,92 @@ MultiSuccessionPlot <- function(data, position_minimum, position_maximum = posit
     ## Phase Time Range
     MPTR = MultiPhaseTimeRange(data=data, position_minimum=position_minimum, position_maximum=position_maximum, level=level)
     for (i in 1:(L) ) { segments(MPTR[i,2], maxValuey + haut[i+1], MPTR[i,3], maxValuey + haut[i+1], lwd=6,col=pal[i]) }
-    text(minValuex, maxValuey + haut[2] , "Time range",srt =90)
+    text(minValuex, maxValuey + haut[trunc((L+1)/2)] , "Time range",srt =90)
     
     ## Phase Transition / Gap
-    segments(minValuex, maxValuey+haut[L+2],maxValuex, maxValuey+haut[L+2], lwd=.2)
-    segments(minValuex, maxValuey+haut[2*L+2],maxValuex, maxValuey+haut[2*L+2], lwd=.2)
-    text(minValuex, maxValuey+haut[L+3 + trunc((L-1)/2)],"Transition ",srt =90)
-    text(minValuex, maxValuey+haut[2*L+3 + trunc((L-1)/2)]," Gap",srt =90)
-    #mtext(outer=TRUE, side = 1, "Transition", srt =90)
-    
     PTrans = MultiPhasesTransition(data=data, position_minimum=position_minimum, position_maximum=position_maximum, level=level)
     PGap = MultiPhasesGap(data=data, position_minimum=position_minimum, position_maximum=position_maximum, level=level)
     
+    # Separateur 
+    segments(minValuex, maxValuey+haut[L+2], maxValuex, maxValuey+haut[L+2], lwd=.2)
+    text(minValuex, maxValuey+haut[2*L+1], "Transition ",srt =90)
+    
+    segments(minValuex, 2*maxValuey+haut[1], maxValuex, 2*maxValuey+haut[1], lwd=.2)
+    text(minValuex, 2*maxValuey+haut[trunc((L+2)/2)]," Gap",srt =90)
+    
+
     for (i in 1:(L-1) ) {
-      segments(PTrans[i,2], maxValuey+haut[L+2+i],PTrans[i,3], maxValuey+haut[L+2+i],lwd=6, col = pal[i])
-      segments(PTrans[i,2], maxValuey+haut[L+2+i],PTrans[i,3], maxValuey+haut[L+2+i],lwd=6, col = pal[i+1], lty=4)
+      segments(PTrans[i,2], maxValuey+haut[L+i+2],PTrans[i,3], maxValuey+haut[L+i+2],lwd=6, col = pal[i])
+      segments(PTrans[i,2], maxValuey+haut[L+i+2],PTrans[i,3], maxValuey+haut[L+i+2],lwd=6, col = pal[i+1], lty=4)
       
       if (PGap[i,2] == "NA" || PGap[i,3] == "NA") {
-        points( (PTrans[i,3]+PTrans[i,2])/2, maxValuey+haut[2*L+2+i], lwd=2, col = pal[i], pch=4)
+        points( (PTrans[i,3]+PTrans[i,2])/2, 2*maxValuey+haut[i+1], lwd=2, col = pal[i], pch=4)
         
       } else {
-        segments(as.numeric(PGap[i,2]), maxValuey+haut[2*L+2+i], as.numeric(PGap[i,3]), maxValuey+haut[2*L+2+i], lwd=6, col = pal[i])
-        segments(as.numeric(PGap[i,2]), maxValuey+haut[2*L+2+i], as.numeric(PGap[i,3]), maxValuey+haut[2*L+2+i], lwd=6, col = pal[i+1], lty=4)
+        segments(as.numeric(PGap[i,2]), 2*maxValuey+haut[i+1], as.numeric(PGap[i,3]), 2*maxValuey+haut[i+1], lwd=6, col = pal[i])
+        segments(as.numeric(PGap[i,2]), 2*maxValuey+haut[i+1], as.numeric(PGap[i,3]), 2*maxValuey+haut[i+1], lwd=6, col = pal[i+1], lty=4)
       }
       
+    }
+    
+    # Options for export
+    if(!is.null(exportFile)) {
+      
+      if(exportFormat == "PNG") {
+        png( filename = paste(exportFile,"png", sep =".") )
+      } 
+      if(exportFormat == "SVG") {
+        svg( filename = paste(exportFile,"svg", sep =".") )
+      }
+      
+      par(las=1, mfrow=c(1,1), cex.axis=0.8)
+      plot(density(phase[,1], n=GridLength), main = title, ylab="Density", xlab = "Calendar Year", ylim=c(0,2.5*maxValuey), xlim=c(minValuex, maxValuex), bty='n',lty =1, lwd=2, axes=F, col = pal[1])
+      lines(density(phase[,2], n=GridLength), lty =1, lwd=2, col = pal[1])
+      
+      # abscissa axis
+      axis(1, at=c(minValuex, P1Valuex, middleValuex, P3Valuex, maxValuex) , labels =c(floor( minValuex), floor( P1Valuex), floor( middleValuex), floor( P3Valuex), floor( maxValuex)))
+      # ordinate axis
+      axis(2, at=c(0, middleValuey, maxValuey), labels =c(0, round(middleValuey, 5), round(maxValuey, 5)) )
+      
+      
+      ## Following phases
+      for(i in 2:L) {
+        lines(density(phase[,2*i-1]), col=pal[i], lwd=2, lty=1)
+        lines(density(phase[,2*i]), col=pal[i], lwd=2, lty=1)
+      }
+      
+      ## Phase Time Range
+      MPTR = MultiPhaseTimeRange(data=data, position_minimum=position_minimum, position_maximum=position_maximum, level=level)
+      for (i in 1:(L) ) { segments(MPTR[i,2], maxValuey + haut[i+1], MPTR[i,3], maxValuey + haut[i+1], lwd=6,col=pal[i]) }
+      text(minValuex, maxValuey + haut[trunc((L+1)/2)] , "Time range",srt =90)
+      
+      ## Phase Transition / Gap
+      PTrans = MultiPhasesTransition(data=data, position_minimum=position_minimum, position_maximum=position_maximum, level=level)
+      PGap = MultiPhasesGap(data=data, position_minimum=position_minimum, position_maximum=position_maximum, level=level)
+      
+      # Separateur 
+      segments(minValuex, maxValuey+haut[L+2], maxValuex, maxValuey+haut[L+2], lwd=.2)
+      text(minValuex, maxValuey+haut[2*L+1], "Transition ",srt =90)
+      
+      segments(minValuex, 2*maxValuey+haut[1], maxValuex, 2*maxValuey+haut[1], lwd=.2)
+      text(minValuex, 2*maxValuey+haut[trunc((L+2)/2)]," Gap",srt =90)
+      
+      
+      for (i in 1:(L-1) ) {
+        segments(PTrans[i,2], maxValuey+haut[L+i+2],PTrans[i,3], maxValuey+haut[L+i+2],lwd=6, col = pal[i])
+        segments(PTrans[i,2], maxValuey+haut[L+i+2],PTrans[i,3], maxValuey+haut[L+i+2],lwd=6, col = pal[i+1], lty=4)
+        
+        if (PGap[i,2] == "NA" || PGap[i,3] == "NA") {
+          points( (PTrans[i,3]+PTrans[i,2])/2, 2*maxValuey+haut[i+1], lwd=2, col = pal[i], pch=4)
+          
+        } else {
+          segments(as.numeric(PGap[i,2]), 2*maxValuey+haut[i+1], as.numeric(PGap[i,3]), 2*maxValuey+haut[i+1], lwd=6, col = pal[i])
+          segments(as.numeric(PGap[i,2]), 2*maxValuey+haut[i+1], as.numeric(PGap[i,3]), 2*maxValuey+haut[i+1], lwd=6, col = pal[i+1], lty=4)
+        }
+        
+      }
+      
+      dev.off()
     }
     
   }
@@ -1267,17 +1486,21 @@ MultiSuccessionPlot <- function(data, position_minimum, position_maximum = posit
 
 #' Several Phases Density Plots
 #'
-#' Plot of the densities of several phases + statistics (mean, CI, HPDR)
+#' Plot of the densities of several groups + statistics (mean, CI, HPDR)
 #'
 #' @param data dataframe containing the output of the MCMC algorithm 
-#' @param position_minimum numeric vector containing the column number corresponding to the minimum of the events included in each phase
-#' @param position_maximum numeric vector containing the column number corresponding to the end of the phases set in the same order as in position_minimum
+#' @param position_minimum numeric vector containing the column number corresponding to the minimum of the events included in each group
+#' @param position_maximum numeric vector containing the column number corresponding to the end of the groups set in the same order as in position_minimum
 #' @param level probability corresponding to the level of confidence
 #' @param title title of the graph
+#' @param colors vector of colors corresponding to each group of dates
+#' @param exportFile the name of the file to be saved. If NULL then no graph is saved. 
+#' @param exportFormat the format of the export file : PNG or SVG.
 #' @return a plot of all densities + CI + mean + HDR
 #' @export
 
-MultiPhasePlot <- function(data, position_minimum, position_maximum = position_minimum+1, level=0.95, title = "Characterisation of several phases"){
+MultiPhasePlot <- function(data, position_minimum, position_maximum = position_minimum+1, level=0.95, title = "Characterisation of several groups",
+                           colors = NULL, exportFile = NULL, exportFormat = "PNG"){
 
   if (length(position_minimum)!= length(position_maximum)) {
     print('Error : the position vectors do not have the same length')
@@ -1295,38 +1518,51 @@ MultiPhasePlot <- function(data, position_minimum, position_maximum = position_m
     phase[,2*i-1] = data[,position_minimum[i]]
     phase[,2*i] = data[,position_maximum[i]]
     
-    densityX[,2*i-1] = density(data[,position_minimum[i]])$x
-    densityX[,2*i] = density(data[,position_maximum[i]])$x
+    densityX[,2*i-1] = density(data[,position_minimum[i]], n=1024)$x
+    densityX[,2*i] = density(data[,position_maximum[i]], n=1024)$x
     
-    densityY[,2*i-1] = density(data[,position_minimum[i]])$y
-    densityY[,2*i] = density(data[,position_maximum[i]])$y
+    densityY[,2*i-1] = density(data[,position_minimum[i]], n=1024)$y
+    densityY[,2*i] = density(data[,position_maximum[i]], n=1024)$y
   }
 
   minValuex <- min (apply(densityX,2,min))
   maxValuex <- min(max( apply(densityX,2,max) ), 2016)
-  x = 10^c(0:10)
-  c =0
-  for(i in 1:length(x)) { if( abs(minValuex/x[i])>1) {c=c+1}}
-  if(c>3){ minValuex = floor(minValuex/x[c-1])*x[c-1]} else {minValuex = floor(minValuex/x[c])*x[c]}
-  d=0
-  for(i in 1:length(x)) { if( abs(maxValuex/x[i])>1) {d=d+1}}
-  if(d>3){ maxValuex = ceiling(maxValuex/x[d-1])*x[d-1]} else {maxValuex = ceiling(maxValuex/x[d])*x[d]}
   
+  # rounding up x and y values
+  x = 10^c(0:10)
+  if(minValuex!=0){  
+    c =0
+    for(i in 1:length(x)) { if( abs(minValuex/x[i])>1) {c=c+1}}
+    if(c>3){ minValuex = floor(minValuex/x[c-1])*x[c-1]} else {minValuex = floor(minValuex/x[c])*x[c]}
+  }
+  if(maxValuex!=0){  
+    d=0
+    for(i in 1:length(x)) { if( abs(maxValuex/x[i])>1) {d=d+1}}
+    if(d>3){ maxValuex = ceiling(maxValuex/x[d-1])*x[d-1]} else {maxValuex = ceiling(maxValuex/x[d])*x[d]}
+  }
+  
+  # x-axis
   middleValuex <- ( maxValuex + minValuex) / 2
   P1Valuex <- minValuex + ( maxValuex - minValuex ) / 4
   P3Valuex <- middleValuex + ( maxValuex - minValuex ) / 4
-
+  # y-axis
   maxValuey <- max( apply(densityY,2,max))
   middleValuey <- maxValuey /2
   minValuey <- min( apply(densityY,2,min))
 
   haut = seq(minValuey,middleValuey,length.out=(L+1) )
 
-  pal = rainbow(L)
-  #colors = pal[sample(x=1:L,L)]
+  # Options for colors
+  if (is.null(colors)) {
+    pal = rainbow(L)
+  } else {
+    pal = colors
+  }
+  
 
+  # Graph
   par(las=1, mfrow=c(1,1), cex.axis=0.8)
-  plot(density(phase[,1], n=GridLength), main = title, ylab="Density", xlab = "Date", ylim=c(0,maxValuey+middleValuey), xlim=c(minValuex, maxValuex), bty='n',lty =1, lwd=2, axes=F, col = pal[1])
+  plot(density(phase[,1], n=GridLength), main = title, ylab="Density", xlab = "Calendar Year", ylim=c(0,maxValuey+middleValuey), xlim=c(minValuex, maxValuex), bty='n',lty =1, lwd=2, axes=F, col = pal[1])
   lines(density(phase[,2], n=GridLength), lty =1, lwd=2, col = pal[1])
 
   # abscissa axis
@@ -1334,25 +1570,64 @@ MultiPhasePlot <- function(data, position_minimum, position_maximum = position_m
   # ordinate axis
   axis(2, at=c(0, middleValuey, maxValuey), labels =c(0, round(middleValuey, 5), round(maxValuey, 5)) )
 
-
   ## Following phases
   for(i in 2:L) {
     lines(density(phase[,2*i-1], n = GridLength), col=pal[i], lwd=2, lty=1)
     lines(density(phase[,2*i], n = GridLength), col=pal[i], lwd=2, lty=1)
   }
 
-  ## Phase Time Range
-  MPTR = MultiPhaseTimeRange(data=data, position_minimum=position_minimum, position_maximum=position_maximum, level=level)
-  for (i in 1:L ) { segments(MPTR[i,2], maxValuey+haut[i+1],MPTR[i,3], maxValuey+haut[i+1],lwd=6,col=pal[i]) }
-  text(minValuex, maxValuey+haut[2], "Time range", srt =90)
+  # ## Phase Time Range
+   MPTR = MultiPhaseTimeRange(data=data, position_minimum=position_minimum, position_maximum=position_maximum, level=level)
+   for (i in 1:L ) { segments(MPTR[i,2], maxValuey+haut[i+1],MPTR[i,3], maxValuey+haut[i+1],lwd=6,col=pal[i]) }
+   text(minValuex, maxValuey+haut[2], "Time range", srt =90)
+  
+   # Options for export
+   if(!is.null(exportFile)) {
+     
+     if(exportFormat == "PNG") {
+       png( filename = paste(exportFile,"png", sep =".") )
+     } 
+     if(exportFormat == "SVG") {
+       svg( filename = paste(exportFile,"svg", sep =".") )
+     }
+     
+     # Graph
+     par(las=1, mfrow=c(1,1), cex.axis=0.8)
+     plot(density(phase[,1], n=GridLength), main = title, ylab="Density", xlab = "Calendar Year", ylim=c(0,maxValuey+middleValuey), xlim=c(minValuex, maxValuex), bty='n',lty =1, lwd=2, axes=F, col = pal[1])
+     lines(density(phase[,2], n=GridLength), lty =1, lwd=2, col = pal[1])
+     
+     # abscissa axis
+     axis(1, at=c(minValuex, P1Valuex, middleValuex, P3Valuex, maxValuex) , labels =c(floor( minValuex), floor( P1Valuex), floor( middleValuex), floor( P3Valuex), floor( maxValuex)))
+     # ordinate axis
+     axis(2, at=c(0, middleValuey, maxValuey), labels =c(0, round(middleValuey, 5), round(maxValuey, 5)) )
+     
+     ## Following phases
+     for(i in 2:L) {
+       lines(density(phase[,2*i-1], n = GridLength), col=pal[i], lwd=2, lty=1)
+       lines(density(phase[,2*i], n = GridLength), col=pal[i], lwd=2, lty=1)
+     }
+     
+     # ## Phase Time Range
+     MPTR = MultiPhaseTimeRange(data=data, position_minimum=position_minimum, position_maximum=position_maximum, level=level)
+     for (i in 1:L ) { segments(MPTR[i,2], maxValuey+haut[i+1],MPTR[i,3], maxValuey+haut[i+1],lwd=6,col=pal[i]) }
+     text(minValuex, maxValuey+haut[2], "Time range", srt =90)
+
+    dev.off()
+  }   # end option export
+  
   }
 }
 
 
 
 
-####################################
-###   Tempo plot   NEW 2016/09   ###
+  ####################################
+###   Tempo plot   NEW Version 2017/03   ###
+
+
+#library(ggplot2)
+#library(ggthemes)
+#library(scales)
 
 # The tempo plot introduced by T. S. Dye 
 # A statistical graphic designed for the archaeological study of rhythms of the long term that embodies a theory of archaeological evidence for the occurrence of events
@@ -1362,9 +1637,19 @@ MultiPhasePlot <- function(data, position_minimum, position_maximum = position_m
 #' @param count, if TRUE the counting process is a number, otherwise it is a probability
 #' @param Gauss if TRUE, the Gaussian approximation of the CI is used
 #' @param title title of the graph
+#' @param x.label label of the x-axis
+#' @param y.label label of the y-axis
+#' @param line.types type of the lines drawn of the graph
+#' @param plot.wi width size
+#' @param plot.ht heigth size
+#' @param base.font font of the text
+#' @param colors if TRUE, the graph is drawn with colors, otherwise it is drawn in black and white
+#' @param out.file the name of the graph (+ extension) that will be saved if chosen. Null by default. 
 #' @return a plot 
 #' @export
-TempoPlot <- function(data, position, level = 0.95 , count = TRUE, Gauss = FALSE, title = "Tempo plot") {
+TempoPlot <- function(data, position, level = 0.95 , count = TRUE, Gauss = FALSE, title = "Tempo plot", x.label="Calendar Year", y.label="Cumulative events",
+                           line.types=c("solid", "12", "11", "28", "28"), plot.wi = 7, plot.ht = 7, base.font = 11,
+                           colors=TRUE, out.file=NULL) {
 
   # Construction of a new dataset containing the columns corresponding to the phases of interest
   L = length(position)
@@ -1374,20 +1659,27 @@ TempoPlot <- function(data, position, level = 0.95 , count = TRUE, Gauss = FALSE
     groupOfDates[,i] = data[,position[i]]
   }
   
-   min = min(apply(groupOfDates,2, min))
-   max = max(apply(groupOfDates,2, max))
-   
-   x = 10^c(0:10)
-   c =0
-   for(i in 1:length(x)) { if( abs(min/x[i])>1) {c=c+1}}
-   if(c>3){ min = floor(min/x[c-1])*x[c-1]} else {min = floor(min/x[c])*x[c]}
-   d=0
-   for(i in 1:length(x)) { if( abs(max/x[i])>1) {d=d+1}}
-   if(d>3){ max = ceiling(max/x[d-1])*x[d-1]} else {max = ceiling(max/x[d])*x[d]}
-   
-   
-   t = seq( min, max, length.out = 50*ncol(groupOfDates))
+  # Horizontal axis : min / max
+  min = min(apply(groupOfDates,2, min))
+  max = max(apply(groupOfDates,2, max))
   
+  ## rounding the minimum value down and the maximum value up.
+  x = 10^c(0:10)
+  if(min!=0){  
+    c =0
+    for(i in 1:length(x)) { if( abs(min/x[i])>1) {c=c+1}}
+    if(c>3){ min = floor(min/x[c-1])*x[c-1]} else {min = floor(min/x[c])*x[c]}
+  }
+  if(max!=0){     
+    d=0
+    for(i in 1:length(x)) { if( abs(max/x[i])>1) {d=d+1}}
+    if(d>3){ max = ceiling(max/x[d-1])*x[d-1]} else {max = ceiling(max/x[d])*x[d]}
+  }
+  
+  
+  t = seq( min, max, length.out = 50*ncol(groupOfDates))
+  
+  # Calculation of the Bayes estimate and its credible interval
   f= function(x){
     g=ecdf(x)   
     y=g(t) 
@@ -1398,27 +1690,56 @@ TempoPlot <- function(data, position, level = 0.95 , count = TRUE, Gauss = FALSE
   moy = apply(F,2,mean)
   ec = apply(F,2,sd)
   qu = cbind( apply(F,2, quantile, probs  = (1-level)/2 , type = 8) ,  apply(F,2, quantile, probs  = 1-((1-level)/2) , type = 8)  )
+  quG = cbind( moy+qnorm(1-(1-level)/2)*ec, moy-qnorm(1-(1-level)/2)*ec )
   
-  quG=cbind(moy+qnorm(1-(1-level)/2)*ec,moy-qnorm(1-(1-level)/2)*ec)
+  result = list(t=t, moy=moy, qu=qu, quG=quG)
   
-  if (Gauss==TRUE){
-
-    matplot(t,cbind(moy,qu,quG) , lty = 1 ,xlab = "time " , ylab = "counting process " , type="l" , lwd = c(4,1,1,1,1), col=2  )
-    polygon( c(t,rev(t)) , c(quG[,1] , rev(quG[,2] )),col = "lightpink", density=4)
-    polygon( c(t,rev(t)) , c(qu[,1] , rev(qu[,2] )),col = "lightseagreen", density=4 ,angle= -45)
-    lines(t,moy, col=2, lwd = 4)
-    legend("bottomright" , legend=c("Bayes estimate", "Credible interval CI", "Gaussian Approx. of CI"), lty=1, col=c(2,"lightseagreen","lightpink"))
-    title(title)
-    
-  }else{
-
-    matplot(t,cbind(moy,qu) , lty = 1 ,xlab = "time " , ylab = "counting process " , type="l" , lwd = c(4,1,1), col=c(2)  )
-    polygon( c(t,rev(t)) , c(qu[,1] , rev(qu[,2] )),col = "lightseagreen",density=4 ,angle= -45)
-    legend("bottomright" , legend=c("Bayes estimate", "Credible interval CI"), lty=1, col=c(2,"lightseagreen"))
-    title(title)
+  if (Gauss) {
+    result.mat <- cbind(result$moy, result$qu, result$quG)
+    colnames(result.mat) <-  c("Bayes estimate", "Credible interval, low", "Credible interval, high", "Gaussian approx., high",
+                             "Gaussian approx., low")
+  }
+  else {
+    result.mat <- cbind(result$moy, result$qu)
+    colnames(result.mat) <-  c("Bayes estimate", "Credible interval, low", "Credible interval, high")
   }
   
+  plot.result <- as.data.frame.table(result.mat)
+  colnames(plot.result) <- c("Var1", "Legend", "Count")
+  plot.result$Year <- result$t
+  
+  if (colors)  {
+    h <- ggplot(plot.result, aes(x=plot.result$Year, y=plot.result$Count, group=plot.result$Legend, colour=plot.result$Legend))
+  }
+  else {
+    h <- ggplot(plot.result, aes(x=plot.result$Year, y=plot.result$Count, group=plot.result$Legend))
+  }
+  
+  old.theme <- theme_set(theme_bw(base_size=base.font))
+  h <- h + theme(legend.title=element_blank())
+  h <- h + geom_line(aes(linetype=plot.result$Legend))
+  h <- h + scale_linetype_manual(values=line.types)
+  
+  if (!is.null(x.label)) {
+    h <- h + xlab(x.label)
+  }
+  if (!is.null(y.label)) {
+    h <- h + ylab(y.label)
+  }
+  h <- h + ggtitle(title)
+  
+  if (!is.null(out.file)) {
+    ggsave(filename=out.file, plot = h, height = plot.ht, width = plot.wi)
+  }
+  
+  #old.par <- par(no.readonly = T)
+  #dev.new(width = plot.wi, height = plot.ht)
+  #par(new)
+  print(h)
+  #par(old.par)
+  #theme_set(old.theme)
 }
+
 
 ##############################################
 ###   Tempo Activity plot   NEW 2016/09   ###
@@ -1463,8 +1784,8 @@ TempoActivityPlot <- function(data, position, level = 0.95, count = TRUE, title 
   F = t( apply( groupOfDates,1,f ) )
   moy = apply(F,2,mean)
   ec = apply(F,2,sd)
-
+  
   plot(x<-t[-1], y<-diff(moy)/diff(t), type = "l", xlab="Time", ylab="Incidence", main =title)  
-
+  grid()
 }
 

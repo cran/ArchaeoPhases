@@ -7,15 +7,15 @@
 MarginalProba(a_chain, b_chain)
 }
 \arguments{
-\item{a_chain}{numeric vector containing the output of the MCMC algorithm for the first one-parameter (date) a  }
+\item{a_chain}{numeric vector containing the output of the MCMC algorithm for the first one-parameter (date) a. The MCMC samples should be in calendar year (BC/AD).  }
 
-\item{b_chain}{numeric vector containing the output of the same MCMC algorithm for the second one-parameter  (date) b}
+\item{b_chain}{numeric vector containing the output of the same MCMC algorithm for the second one-parameter (date) b. The MCMC samples should be in calendar year (BC/AD).}
 }
 \value{
 Returns the posterior probability of the following assumption: "Event a is older than event b"
 }
 \description{
-This function estimates the posterior probability that event 'a' is older than event 'b' using the output of the MCMC algorithm. This provides a bayesian test for checking the following assumption: "Event a is older than event b"
+This function estimates the posterior probability that event 'a' is older than event 'b' using the output of the MCMC algorithm. This provides a bayesian test for checking the following assumption: "Event a is older than event b".
 }
 \details{
 For a given output of MCMC algorithm, this function estimates the  posterior probability of the  event 'a' < 'b'  by the relative frenquency of the event  "the value of event 'a' is lower than the value of event 'b'"  in the simulated Makov chain.}

@@ -5,7 +5,7 @@
 Events
 }
 \description{
-Contains the output of the MCMC algorithm for four events modelled by ChronoModel. }
+Contains the output of the MCMC algorithm for four events modelled by ChronoModel. The MCMC samples are in calendar year (BC/AD). }
 \usage{data(Events)}
 \format{
   A data frame with 30000 observations on the following 5 variables.

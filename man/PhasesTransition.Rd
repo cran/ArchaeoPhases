@@ -12,7 +12,7 @@ PhasesTransition(Phase1Max_chain, Phase2Min_chain, level = 0.95)
   \item{level}{probability corresponding to the level of confidence}
 }
 \value{
-Returns a vector of values containing the level of confidence and the endpoints of the transition interval between the successive phases
+Returns a vector of values containing the level of confidence and the endpoints of the transition interval between the successive phases. The result is given in calendar year (in format BC/AD).
 }
 \description{
 Finds if it exists the shortest interval [TransitionRangeInf , TransitionRangeSup ] that satisfies : P(TransitionRangeInf < Phase1Max_chain < Phase2Min_chain < TransitionRangeSup  | M) = level
