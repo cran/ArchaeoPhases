@@ -1,6 +1,6 @@
-f4e9b1beee708c03c13564c64b9c41c9 *DESCRIPTION
-44764bee72952803637295617cd6f049 *NAMESPACE
-d6239810617372b8be4a0227f5a8900b *NEWS
+4ae3bfac8fae1cfc43192556c48162ee *DESCRIPTION
+60227f2fdd456deb757337654b19f055 *NAMESPACE
+0de0215baf75ac4e288ec0362f2fdccd *NEWS
 52a89c37476c922a526ceb5372d51d0b *R/prog.R
 916e56d263a900a88f4164bd49fedd2e *build/vignette.rds
 b213819181524babc7f63100afc66067 *data/Events.RData
@@ -11,11 +11,11 @@ e60da2a1e2ab03334b108c0ed3bd488c *data/KAPhasesChronoModel.RData
 54a19e72bc5c1efdebf54594bce6d517 *data/Phases.RData
 8e74c18940f9f53002c47188f7387034 *data/datalist
 887bc816a7736633c80327b4f8fe96d8 *inst/CITATION
-eed94df1703f2524ceb20578c28065fa *inst/doc/ArchaeoPhases.R
-ce5c22515a87c8629011b5aee92b5814 *inst/doc/ArchaeoPhases.Rmd
-7d92971e5345603488dc936071748cc6 *inst/doc/ArchaeoPhases.html
-19144515ccc0aa5e61bca4e695ea66dd *inst/shiny/server.R
-866c8c03c0d3964a6f94768f99d3bb0f *inst/shiny/ui.R
+da735b95248e59847ed55bdafa6422c7 *inst/doc/ArchaeoPhases.R
+130b0263216cfdb10da74ced9970d959 *inst/doc/ArchaeoPhases.Rmd
+adfd5e01ddb4d2cfd7f67ceadfa4608c *inst/doc/ArchaeoPhases.html
+6f2702b064e0fcef0b8f4118a8accdad *inst/shiny/server.R
+4d1c4810d878723abb58a8344d615bb3 *inst/shiny/ui.R
 4414dbab5d9f435e4652fc28665dca7a *man/ArchaeoPhases.Rd
 3c9011f9303e46d700d5aa97db749977 *man/CreateMinMaxGroup.Rd
 e120a6aba460738a76923cb4df5d19e7 *man/CredibleInterval.Rd
@@ -49,4 +49,4 @@ efe4b32808337af21d4366720ae0bcd6 *man/TempoActivityPlot.Rd
 76d7a26ac524a525ed43e389ac16b46e *man/TempoPlot.Rd
 4030181054260257571d934bb2c256e3 *man/app_ArchaeoPhases.Rd
 b6396bc4c7df3f87dcfde751e0bce5e6 *man/coda.mcmc.Rd
-ce5c22515a87c8629011b5aee92b5814 *vignettes/ArchaeoPhases.Rmd
+130b0263216cfdb10da74ced9970d959 *vignettes/ArchaeoPhases.Rmd

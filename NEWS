@@ -1,4 +1,13 @@
 NEWS 
+
+==============
+ArchaeoPhases 1.2 (Release date: 2017-06-12)
+==============
+
+* Includes an update of the vignette that describes the main functions of the package
+
+* Includes an update of the shiny web application (called by function app_ArchaeoPhases())
+
 ==============
 ArchaeoPhases 1.1 (Release date: 2017-03-28)
 ==============

@@ -56,7 +56,7 @@ geweke.diag(mcmcList[,1,], frac1=0.1, frac2=0.5)
 
 ## ----fig.align='center',fig.width=6,fig.height=5----------------------------------------------------------------------
 data("KADatesChronoModel")
-#TempoPlot(KADatesChronoModel, c(2:17), level = 0.95)
+TempoPlot(KADatesChronoModel, c(2:17), level = 0.95)
 
 ## ----fig.align='center',fig.width=6,fig.height=5----------------------------------------------------------------------
 data("KAPhasesChronoModel")

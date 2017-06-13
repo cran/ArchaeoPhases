@@ -2,9 +2,10 @@ library(shiny)
 library(shinythemes)
 library(ArchaeoPhases)
 library(DT)
-library(dplyr)
+#library(dplyr)
 library(hdrcde)
 library(coda)
+library(ggplot2)
 
 renderInputs0 <- function() {
     fluidRow(
@@ -34,7 +35,7 @@ renderInputs0 <- function() {
       tags$div(class="header", checked=NA,
                tags$p("This application was developed by Anne Philippe and Marie-Anne Vibet members of the Laboratoire de mathématiques Jean Leray, Université de Nantes, France."),
                tags$p("Maintainer : Anne Philippe <anne.philippe@univ-nantes.fr>"),
-               tags$p("Last release : March 2017")
+               tags$p("Last release : April 2017")
       )
       
   )}
@@ -69,7 +70,8 @@ renderInputs12 <- function() {
       br(),
       textInput(inputId='iterationColumn2', label="Number of the iteration column", "NULL" ),
       textInput(inputId='referenceYear2', label="Year of reference for non BC/AD format", "NULL" ),
-      textInput(inputId='rowToWithdraw2', label="Row to be withdrawn", "NULL" )
+      textInput(inputId='rowToWithdraw2', label="Row to be withdrawn", "NULL" ),
+      actionButton(inputId = "StockageFile2", label = "Use this file")
     )
     
   )}
@@ -87,10 +89,11 @@ renderInputs13 <- function() {
       uiOutput("ChainsSelectionG"),
       br(),
       textInput(inputId='name', label="Name of the group", "Group1" ),
-      textInput(inputId='exportFile', label="The name of the file to be exported", "NULL" ),
       actionButton(inputId = "goButton", label = "Create group"),
       actionButton(inputId = "addButton", label = "Add group"),
-      actionButton(inputId = "clearButton", label = "Clear groups")
+      actionButton(inputId = "clearButton", label = "Clear groups"),
+      downloadButton('downloadData', 'Download file'),
+      actionButton(inputId = "StockageFile22", label = "Use this file")
     )
     
   )}
@@ -129,7 +132,8 @@ renderInputs2 <- function() {
       br(),
       h5(helpText("Graphic options")),
       textInput(inputId='titlePlot', label="Plot title", "Characteristics of a date" ),
-      column(6,radioButtons(inputId='color', label="Colors", choices=c(Yes='TRUE', No='FALSE'), selected='TRUE') )
+      column(6,radioButtons(inputId='color', label="Colors", choices=c(Yes='TRUE', No='FALSE'), selected='TRUE') ),
+      downloadButton('downloadPlotDates', 'Download Marginal plot')
       )
     
   )}
@@ -152,8 +156,7 @@ renderInputs22 <- function() {
       h5(helpText("Intervals plot options")),
       textInput(inputId='titleIntervalsplot', label="Intervals plot title", "Intervals plot" ),
       radioButtons(inputId='intervals', label="Intervals", choices=c("Credible Intervals"='CI', "Highest Posterior Density"='HPD'), selected='CI'),
-      column(6,radioButtons(inputId='exportFile22IT', label="Export graph", choices=c(Yes='TRUE', No='FALSE'), selected='FALSE')),
-      column(6,radioButtons(inputId='exportFormatIT', label="File format", choices=c(PNG='PNG', SVG='SVG'), selected='PNG')),
+      downloadButton('downloadIntervalPlot', 'Download Intervals plot'),
       br(),
       h5(helpText("Tempo plot options")),
       textInput(inputId='titleTempoplot', label="Tempo plot title", "Tempo plot" ),
@@ -162,7 +165,26 @@ renderInputs22 <- function() {
       textInput(inputId='xlabel', label="x-label", "Calendar year" ),
       textInput(inputId='ylabel', label="y-label", "Cumulative events" ),
       column(6,radioButtons(inputId='colors', label="Use of colors", choices=c(Yes='TRUE', No='FALSE'), selected='TRUE')),
-      column(6,radioButtons(inputId='exportFile22', label="Export graph", choices=c(Yes='TRUE', No='FALSE'), selected='FALSE'))
+      downloadButton('downloadTempoPlot', 'Download Tempo plot'),
+      downloadButton('downloadActivityPlot', 'Download Activity plot')
+    )
+    
+  )}
+
+
+   ##################################
+#######   Tests between dates   ##########
+
+
+renderInputsTests <- function() {
+  wellPanel(
+    fluidRow(
+      h3("Dates selection"),
+      selectInput("variableTest1a", "Select chain names", choices = character(0), multiple = FALSE, selected = NULL),
+      selectInput("variableTest1b", "Select chain names", choices = character(0), multiple = FALSE, selected = NULL),
+      br(),
+      h5(helpText("Statistical options")),
+      numericInput(inputId ='levelTests', label="Confidence level", value=0.95,min=0, max=1)
     )
     
   )}
@@ -184,7 +206,8 @@ renderInputs3 <- function() {
       br(),
       h5(helpText("Graphical options")),
       textInput(inputId='titlePlot2', label="Title", "Characterisation of a group" ),
-      column(6,radioButtons(inputId='color2', label="Colors", choices=c(Yes='TRUE', No='FALSE'), selected='TRUE') )
+      column(6,radioButtons(inputId='color2', label="Colors", choices=c(Yes='TRUE', No='FALSE'), selected='TRUE') ),
+      downloadButton('downloadGroupPlot', 'Download plot')
     )
   )}
 
@@ -206,8 +229,7 @@ renderInputs32 <- function() {
       br(),
       h5(helpText("Graphical options")),
       textInput(inputId='titleMultiPhases', label="Plot title", "Characterisation of several groups" ),
-      column(6,radioButtons(inputId='exportFile32', label="Export graph", choices=c(Yes='TRUE', No='FALSE'), selected='FALSE')),
-      column(6,radioButtons(inputId='exportFormat32', label="File format", choices=c(PNG='PNG', SVG='SVG'), selected='PNG'))
+      downloadButton('downloadMultiPhasesPlot', 'Download Groups plot')
     )
   )}
 
@@ -235,8 +257,7 @@ renderInputs4 <- function() {
       br(),
       h5(helpText("Graphical options")),
       textInput(inputId='titleSuccessionPlot', label="Plot title", "Characterisation of a succession of groups" ),
-      column(6,radioButtons(inputId='exportFile4', label="Export graph", choices=c(Yes='TRUE', No='FALSE'), selected='FALSE')),
-      column(6,radioButtons(inputId='exportFormat4', label="File format", choices=c(PNG='PNG', SVG='SVG'), selected='PNG'))
+      downloadButton('downloadSuccessionPlot', 'Download Succession plot')
     )
     
   )}
@@ -255,8 +276,8 @@ shinyUI(fluidPage(
              ),
              tabPanel("Import CSV", titlePanel("Import your CSV files"), 
                       fluidRow(
-                        h2("File1 : Dates"),
-                        h4("First, import here the CSV file contaning the MCMC of all dates"),
+                        h2("File 1 : Dates"),
+                        h4("First, import here the CSV file contaning the MCMC of all dates."),
                         h4("For modelling done with ChronoModel, this file is called 'events.csv'"),
                         h4("For any other software, import the CSV file extracted from it. ")
                       ),
@@ -265,22 +286,28 @@ shinyUI(fluidPage(
                         column(6, uiOutput("AfficheTableLue11"))
                       )  ,
                       fluidRow(
-                        h2("File2 : Groups of dates"),
+                        h2("File 2 : Groups of dates"),
                         h4("Import here the CSV file contaning the MCMC of the minimum and maximum of all groups of dates if any."),
-                        h4("For modelling done with ChronoModel, this file is called 'phases.csv'"),
-                        h4("For any other software, you may need to create it (see below). ")
-                      ),
-                      fluidRow(
-                        column(5, renderInputs12()),
-                        column(6, uiOutput("AfficheTableLue12"))
-                      )  ,
-                      fluidRow(
-                        h4("Creating the file containing the minimim and maximum of all groups of dates.")
-                       ),
-                      fluidRow(
-                        column(5, renderInputs13()),
-                        column(6, uiOutput("result13"))
-
+                        h4("For modelling done with ChronoModel, this file is called 'phases.csv'. "),
+                        h4("For any other software, you may create it using Create CSV. "),
+                        h4(helpText("Warning : please click on 'Use this file' at the bottom of either of these tab in order to go one. ")),
+                        tabsetPanel(
+                                    tabPanel("Import a CSV file", 
+                                            # h4("Import here the CSV file contaning the MCMC of the minimum and maximum of all groups of dates."),
+                                             fluidRow(
+                                                  column(5, renderInputs12()),
+                                                  column(6, uiOutput("AfficheTableLue12"))
+                                                )  
+                                             ),
+                                    tabPanel("Create groups of dates", 
+                                            # h4("Creating the file containing the minimim and maximum of all groups of dates."),
+                                             fluidRow(
+                                                  column(5, renderInputs13()),
+                                                  column(6, uiOutput("result13"))
+                                                
+                                                )
+                                             )
+                        )
                       )
                       ),
              tabPanel("Convergence", titlePanel("Check the convergence of the Markov chains"),
@@ -299,6 +326,15 @@ shinyUI(fluidPage(
                         column(7, uiOutput("result22"))
                       )
                       ),
+             tabPanel("Tests between dates", titlePanel("Tests between dates"), 
+                      h4("Two tests between dates are available : "),
+                      h4("A posterior probability that a date is earlier than another one. "),
+                      h4("A testing procedure to check the presence of a gap between two dates. A gap interval is estimated if we accept its existence."),
+                      fluidRow(
+                        column(5, renderInputsTests()),
+                        column(6, uiOutput("resultTests"))
+                      )
+             ),
              tabPanel("Group of dates", titlePanel("Description of individual group of dates"),   
                       fluidRow(
                         column(4, renderInputs3()),
