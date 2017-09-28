@@ -1,28 +1,27 @@
 library(shiny)
 library(shinythemes)
 library(ArchaeoPhases)
-library(DT)
-#library(dplyr)
 library(hdrcde)
 library(coda)
-library(ggplot2)
+#library(DT)
+
 
 renderInputs0 <- function() {
     fluidRow(
-      h4("Post-Processing of the Markov Chain Simulated by ChronoModel, by BCal or by Oxcal"),
+      h4("Post-Processing of the Markov Chain Simulated by BCal, by ChronoModel or by Oxcal"),
       br(),
-      h4("This is a Shiny application for ChronoModel, BCal or Oxcal users who want to use ArchaeoPhases package without having to know R software."),
+      h4("This is a Shiny application for BCal, ChronoModel or Oxcal users who want to use ArchaeoPhases package without having to know R software."),
       h4("The process is very simple !"),
-      h4("First model your chronology with ChronoModel, BCal or Oxcal or any other software for constructing archaeological chronologies.  "),
+      h4("First model your chronology with BCal, ChronoModel or Oxcal or any other software for constructing archaeological chronologies.  "),
       h4("Then extract the simulated Markov Chains and save it into a CSV file. "),
       h4("And finally, import the CSV file using this web application and analyse your chronological dates or groups of dates. "),
       br(),
       tags$div(class="header", checked=NA,
-                  tags$p("To visite ChronoModel website"), tags$a(href="http://www.chronomodel.fr/", "Click Here!"), 
-               br(),
-                  tags$p("To visite Oxcal website"), tags$a(href="https://c14.arch.ox.ac.uk/oxcalhelp/hlp_contents.html", "Click Here!"),
-               br(),
-               tags$p("To visite BCal website"), tags$a(href="http://bcal.shef.ac.uk/.html", "Click Here!")
+              tags$p("To visite BCal website"), tags$a(href="http://bcal.shef.ac.uk/.html", "Click Here!"),
+              br(),
+              tags$p("To visite ChronoModel website"), tags$a(href="http://www.chronomodel.fr/", "Click Here!"), 
+              br(),
+              tags$p("To visite Oxcal website"), tags$a(href="https://c14.arch.ox.ac.uk/oxcalhelp/hlp_contents.html", "Click Here!")
        ),
       br(),
       # adding the new div tag to the sidebar            
@@ -33,9 +32,10 @@ renderInputs0 <- function() {
       br(),
       # adding the new div tag to the sidebar            
       tags$div(class="header", checked=NA,
-               tags$p("This application was developed by Anne Philippe and Marie-Anne Vibet members of the Laboratoire de mathématiques Jean Leray, Université de Nantes, France."),
+               tags$p("This application is developed by Anne Philippe and Marie-Anne Vibet members of the Laboratoire de mathématiques Jean Leray, Université de Nantes, France,"),
+               tags$p("and by Thomas S. Dye from T. S. Dye & Colleagues, Archaeologists, Inc., Honolulu. "),
                tags$p("Maintainer : Anne Philippe <anne.philippe@univ-nantes.fr>"),
-               tags$p("Last release : April 2017")
+               tags$p("Last release : Septembre 2017")
       )
       
   )}
@@ -156,6 +156,7 @@ renderInputs22 <- function() {
       h5(helpText("Intervals plot options")),
       textInput(inputId='titleIntervalsplot', label="Intervals plot title", "Intervals plot" ),
       radioButtons(inputId='intervals', label="Intervals", choices=c("Credible Intervals"='CI', "Highest Posterior Density"='HPD'), selected='CI'),
+      radioButtons(inputId='order', label="Order of y", choices=c("Default order"='default', "Increasing order"='increasing'), selected='default'),
       downloadButton('downloadIntervalPlot', 'Download Intervals plot'),
       br(),
       h5(helpText("Tempo plot options")),
@@ -163,13 +164,21 @@ renderInputs22 <- function() {
       column(6,radioButtons(inputId='GaussCI', label="Gaussian approx", choices=c(Yes='TRUE', No='FALSE'), selected='FALSE')), 
       column(6,radioButtons(inputId='count', label="Counting process", choices=c(Number='TRUE', Probability='FALSE'), selected='TRUE')),
       textInput(inputId='xlabel', label="x-label", "Calendar year" ),
-      textInput(inputId='ylabel', label="y-label", "Cumulative events" ),
+      uiOutput("ui"),
       column(6,radioButtons(inputId='colors', label="Use of colors", choices=c(Yes='TRUE', No='FALSE'), selected='TRUE')),
       downloadButton('downloadTempoPlot', 'Download Tempo plot'),
-      downloadButton('downloadActivityPlot', 'Download Activity plot')
+      downloadButton('downloadActivityPlot', 'Download Activity plot'),
+      br(),
+      h5(helpText("Occurrence plot options")),
+      textInput(inputId='titleOccurrenceplot', label="Occurrence plot title", "Occurrence plot" ),
+      #textInput(inputId='xlabelO', label="x-label", "Calendar year" ),
+      #textInput(inputId='ylabelO', label="y-label", "Cumulative events" ),
+      downloadButton('downloadOccurrencePlot', 'Download Occurrence plot')
     )
     
   )}
+
+
 
 
    ##################################

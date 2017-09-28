@@ -1,6 +1,6 @@
 ## ---- echo = FALSE, message = FALSE-----------------------------------------------------------------------------------
 knitr::opts_chunk$set(comment = "")
-options(width = 120, max.print = 100)
+options(width = 120, max.print = 5)
 library(ArchaeoPhases)
 
 ## ----eval=FALSE-------------------------------------------------------------------------------------------------------
@@ -32,7 +32,9 @@ library(ArchaeoPhases)
 #  Oxcal_MCMC_Groups = CreateMinMaxGroup(KADatesOxcal, position = 26, name = "EPI", add=Oxcal_MCMC_Groups, exportFile = "Oxcal_MCMC_Groups.csv")
 
 ## ----eval=FALSE-------------------------------------------------------------------------------------------------------
-#  BCal_MCMC = ImportCSV("pathToFiles/fileName.csv", iterationColumn = 1, referenceYear = 1950, rowToWithdraw = lastline)
+#  BCal_MCMC = ImportCSV("pathToFiles/fileName.csv", iterationColumn = 1, referenceYear = 1950, rowToWithdraw = "last", bin.width=1)
+#  # equivalent to
+#  BCal_MCMC = ImportCSV.BCal("pathToFiles/fileName.csv", bin.width=1)
 
 ## ----eval=FALSE-------------------------------------------------------------------------------------------------------
 #  data("Fishpond")
@@ -53,28 +55,4 @@ gelman.plot(mcmcList[,1,])
 
 ## ----fig.align='center',fig.width=6,fig.height=5----------------------------------------------------------------------
 geweke.diag(mcmcList[,1,], frac1=0.1, frac2=0.5)
-
-## ----fig.align='center',fig.width=6,fig.height=5----------------------------------------------------------------------
-data("KADatesChronoModel")
-TempoPlot(KADatesChronoModel, c(2:17), level = 0.95)
-
-## ----fig.align='center',fig.width=6,fig.height=5----------------------------------------------------------------------
-data("KAPhasesChronoModel")
-MultiPhaseTimeRange(KAPhasesChronoModel, c(8,6,4,2), level = 0.95)
-
-## ----fig.align='center',fig.width=6,fig.height=5----------------------------------------------------------------------
-data("KAPhasesChronoModel")
-MultiPhasePlot(KAPhasesChronoModel, c(8,6,4,2), level = 0.95)
-
-## ----fig.align='center',fig.width=6,fig.height=5----------------------------------------------------------------------
-data("KAPhasesChronoModel")
-MultiPhasesTransition(KAPhasesChronoModel, c(8,6,4,2), level = 0.95)
-
-## ----fig.align='center',fig.width=6,fig.height=5----------------------------------------------------------------------
-data("KAPhasesChronoModel")
-MultiPhasesGap(KAPhasesChronoModel, c(8,6,4,2), level = 0.95)
-
-## ----fig.align='center',fig.width=6,fig.height=5----------------------------------------------------------------------
-data("KAPhasesChronoModel")
-MultiSuccessionPlot(KAPhasesChronoModel, c(8,6,4,2), level = 0.95)
 
