@@ -2,11 +2,11 @@ Package: ArchaeoPhases
 Type: Package
 Title: Post-Processing of the Markov Chain Simulated by 'ChronoModel',
         'Oxcal' or 'BCal'
-Version: 1.3
-Date: 2017-09-28
+Version: 1.4
+Date: 2019-01-01
 Author: Anne Philippe [aut, cre],
-    Marie-Anne Vibet [aut],
-    Thomas S. Dye [ctb]
+  Marie-Anne Vibet [aut],
+  Thomas S. Dye [ctb]
 Authors@R: c( 
               person("Anne", "Philippe", role = c("aut", "cre"), email = "anne.philippe@univ-nantes.fr"),
               person("Marie-Anne", "Vibet", role = c("aut")),
@@ -23,6 +23,6 @@ VignetteBuilder: knitr
 BugReports: https://github.com/marieannevibet/ArchaeoPhases/issues
 RoxygenNote: 5.0.1
 NeedsCompilation: no
-Packaged: 2017-09-28 14:27:04 UTC; vibet
+Packaged: 2019-01-01 18:39:11 UTC; annephilippe
 Repository: CRAN
-Date/Publication: 2017-09-28 15:16:21 UTC
+Date/Publication: 2019-01-02 09:10:03 UTC

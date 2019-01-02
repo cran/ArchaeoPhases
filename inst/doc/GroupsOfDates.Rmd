@@ -11,7 +11,7 @@ output:
       smooth_scroll: false
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{ArchaeoPhases}
+  %\VignetteIndexEntry{ArchaeoPhases-groups}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -54,7 +54,7 @@ See Philippe and Vibet 2017 for more statistical details.
 data("KAPhasesChronoModel")
 MultiPhasesTransition(KAPhasesChronoModel, c(8,6,4,2), level = 0.95)
 ```
-For this function, the order of the groups of dates is important. The vector of positions of the minimums should start with the minimum of the oldest phase and end with the one of the youngest phase. For data extracted from ChronoModel or using the function CreateMinMaxGroup(), the vector of positions of the phases’ maximums is deduced from the vector of the minimum. For other data, this vector should be specified.
+For this function, the order of the groups of dates is important. The vector of positions of the minimums should start with the minimum of the oldest phase and end with the one of the youngest phase. For data extracted from ChronoModel or using the function CreateMinMaxGroup(), the vector of positions of the phases??? maximums is deduced from the vector of the minimum. For other data, this vector should be specified.
 
 ### Gap between successive groups
 Successive phases may also be separated in time. Indeed there may exist a gap between them. This testing procedure check whether a gap exists between two successive groups of dates with fixed probability. If a gap exists, it is an interval that covers the end of one group of dates and the start of the successive one with fixed posterior probability. See Philippe and Vibet 2017 for more statistical details.

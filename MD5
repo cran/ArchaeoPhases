@@ -1,4 +1,4 @@
-bccf261803a11ad53a925b6c3a66af44 *DESCRIPTION
+f2c123f85e06be960110ac56c79b04c1 *DESCRIPTION
 6cef8197c61078bb1cd4fcd6dd1b8147 *NAMESPACE
 0d9c30c742db060fd55dba184e490249 *NEWS
 86b14c96e4d62cea071105793b98a910 *R/CreateMinMaxGroup.R
@@ -30,7 +30,7 @@ f742e03c9692f10f93edec5155e99236 *R/PhasesTransition.R
 3a5dfedc3eb1ed3382279315de16b94b *R/app_ArchaeoPhases.R
 4b2364a61cda7dfcc1dcddb095711840 *R/coda.mcmc.R
 183462cec89f8f0ea8dfb7cf08d831a9 *README
-79786aa931d546ce9a3a613d9788612e *build/vignette.rds
+22d7a2abbb8dc5e6f56bc04119bd628f *build/vignette.rds
 b213819181524babc7f63100afc66067 *data/Events.RData
 ceaaf5dd18b47f062547692adc7435d3 *data/Fishpond.RData
 813034077d36506709bc43970ab3f470 *data/KADatesChronoModel.RData
@@ -40,14 +40,14 @@ e60da2a1e2ab03334b108c0ed3bd488c *data/KAPhasesChronoModel.RData
 8e74c18940f9f53002c47188f7387034 *data/datalist
 887bc816a7736633c80327b4f8fe96d8 *inst/CITATION
 9a8d4147cd87e7974ee427787da19c2b *inst/doc/GroupsOfDates.R
-ba36a0d13f8e75b984348c85f79d1d3e *inst/doc/GroupsOfDates.Rmd
-a5e51d31fd289f811607c6939bc5b254 *inst/doc/GroupsOfDates.html
+118418235c223e8ca69065afd0acc733 *inst/doc/GroupsOfDates.Rmd
+d73941e9db927019ab3f85c4f36b23fe *inst/doc/GroupsOfDates.html
 942ccbc434090d3adb270ef5ce592576 *inst/doc/Introduction.R
-692c67deeb7c36a5d38a702c5435454f *inst/doc/Introduction.Rmd
-cf41b1454a2ba044ab7d73d030aa4377 *inst/doc/Introduction.html
+5c2311f6a0f58395695f1e9a9d23d772 *inst/doc/Introduction.Rmd
+1910368f2151791bb7b11c3c8cd2d3db *inst/doc/Introduction.html
 0b09b5dc882963183ee6e24040e9a1b5 *inst/doc/SeriesOfDates.R
-edae4e57afaa3b43fb58134936948a10 *inst/doc/SeriesOfDates.Rmd
-b0425a0479c6c9c0353108efa35d8ca3 *inst/doc/SeriesOfDates.html
+77fb8f613ec6cd566ce4f22ff9ab8393 *inst/doc/SeriesOfDates.Rmd
+4510f6a298b462f6d6a0a15af48df95e *inst/doc/SeriesOfDates.html
 39b554e9b88b40454dbdea8e1b61027e *inst/shiny/server.R
 567ef765996773d1061097282f19bb1a *inst/shiny/ui.R
 4414dbab5d9f435e4652fc28665dca7a *man/ArchaeoPhases.Rd
@@ -85,6 +85,6 @@ f9f1c62b80768e4a03714a219f3d98c1 *man/PhasesTransition.Rd
 dd0008494a91f45bf0fd813e711d1d37 *man/TempoPlot.Rd
 4030181054260257571d934bb2c256e3 *man/app_ArchaeoPhases.Rd
 b6396bc4c7df3f87dcfde751e0bce5e6 *man/coda.mcmc.Rd
-ba36a0d13f8e75b984348c85f79d1d3e *vignettes/GroupsOfDates.Rmd
-692c67deeb7c36a5d38a702c5435454f *vignettes/Introduction.Rmd
-edae4e57afaa3b43fb58134936948a10 *vignettes/SeriesOfDates.Rmd
+118418235c223e8ca69065afd0acc733 *vignettes/GroupsOfDates.Rmd
+5c2311f6a0f58395695f1e9a9d23d772 *vignettes/Introduction.Rmd
+77fb8f613ec6cd566ce4f22ff9ab8393 *vignettes/SeriesOfDates.Rmd
