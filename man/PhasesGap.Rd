@@ -17,6 +17,9 @@ Returns a vector of values containing the level of confidence and the endpoints 
 \description{
 This function finds, if it exists, the gap between two successive phases. This gap or hiatus is the longest interval [IntervalInf ; IntervalSup] that satisfies : P(Phase1Max_chain < IntervalInf < IntervalSup < Phase2Min_chain | M) = level.
 }
+\references{
+Anne Philippe, Marie-Anne Vibet. (2020). Analysis of Archaeological Phases using the CRAN Package 'ArchaeoPhases', <doi:10.18637/jss.v093.c01>. 
+}
 \author{
   Anne Philippe <Anne.Philippe@univ-nantes.fr> and
 

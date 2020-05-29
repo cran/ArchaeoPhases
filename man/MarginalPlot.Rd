@@ -38,8 +38,6 @@ The density is estimated using density() function with n=GridLength.
 
   MarginalPlot(Event.2, level = 0.95, title="Characteristics of Event 2")
   MarginalPlot(Event.2, level = 0.95, colors = FALSE)
-  MarginalPlot(Event.2, level = 0.95, colors = FALSE, 
-  exportFile = "Characteristics_Event.2", exportFormat = "SVG")
 }
 \keyword{ marginal posterior density }
 \keyword{ credible interval }

@@ -24,6 +24,9 @@ A plot with the marginal posterior densities of the minimum and the maximum of t
 \description{
 This function draws the marginal posterior densities of the minimum and the maximum of the dates included in the phase
 }
+\references{
+Anne Philippe, Marie-Anne Vibet. (2020). Analysis of Archaeological Phases using the CRAN Package 'ArchaeoPhases', <doi:10.18637/jss.v093.c01>. 
+}
 \author{
   Anne Philippe <Anne.Philippe@univ-nantes.fr> and
 
@@ -32,9 +35,9 @@ This function draws the marginal posterior densities of the minimum and the maxi
 \examples{
   data(Phases); attach(Phases)
 
-  #PhasePlot(Phase.1.alpha, Phase.1.beta, level = 0.95, title = "Densities of Phase 1")
-  PhasePlot(Phase.2.alpha, Phase.2.beta, level = 0.95, title = "Densities of Phase 2", 
-  colors = FALSE, exportFile = "CharacteristicsOfPhase", exportFormat = "SVG")
+  PhasePlot(Phase.1.alpha, Phase.1.beta, level = 0.95, title = "Densities of Phase 1")
+  #PhasePlot(Phase.2.alpha, Phase.2.beta, level = 0.95, title = "Densities of Phase 2", 
+  #colors = FALSE, exportFile = "CharacteristicsOfPhase", exportFormat = "SVG")
 }
 \keyword{ bayesian statistics }
 \keyword{ highest posterior density}

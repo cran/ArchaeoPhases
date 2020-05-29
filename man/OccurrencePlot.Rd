@@ -58,6 +58,9 @@ If we have k events.
 We can estimate the calendar date t corresponding to the smallest date such that the number of events observed before t is equal to k.  
 The OccurrencePlot estimates theses dates and give the credible interval or the highest posterior density (HPD) region of theses dates associated to a desired level of confidence.
 }
+\references{
+Anne Philippe, Marie-Anne Vibet. (2020). Analysis of Archaeological Phases using the CRAN Package 'ArchaeoPhases', <doi:10.18637/jss.v093.c01>. 
+}
 \author{
   Anne Philippe <Anne.Philippe@univ-nantes.fr>, Thomas S. Dye  <TSD@tsdye.com> and
 

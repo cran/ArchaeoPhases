@@ -77,8 +77,8 @@ As there are no gaps at 95% between phases IUP and Ahmarian, and Ahmarian and UP
 
 ## References
 
-For a description of the statiscal aspects of the functions implemented in ArchaeoPhases version 1.0 :  
-Anne Philippe, Marie-Anne Vibet. (2017). Analysis of Archaeological Phases using the CRAN Package 'ArchaeoPhases'. HAL, hal-01347895, version 3. 
+For a description of the statiscal aspects of the functions implemented in ArchaeoPhases version 1.4 :  
+Anne Philippe, Marie-Anne Vibet. (2020). Analysis of Archaeological Phases using the CRAN Package 'ArchaeoPhases'. . Journal of Statistical Software, Code Snippets, 93, 1--25.
 
 For a use of the tempo plot defined by Dye :
 Dye, T.S. (2016). Long-term rhythms in the development of Hawaiian social stratification. Journal of Archaeological Science, 71, 1--9

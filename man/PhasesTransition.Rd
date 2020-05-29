@@ -17,7 +17,9 @@ Returns a vector of values containing the level of confidence and the endpoints 
 \description{
 Finds if it exists the shortest interval [TransitionRangeInf , TransitionRangeSup ] that satisfies : P(TransitionRangeInf < Phase1Max_chain < Phase2Min_chain < TransitionRangeSup  | M) = level
 }
-
+\references{
+Anne Philippe, Marie-Anne Vibet. (2020). Analysis of Archaeological Phases using the CRAN Package 'ArchaeoPhases', <doi:10.18637/jss.v093.c01>. 
+}
 \author{
   Anne Philippe <Anne.Philippe@univ-nantes.fr> and
 

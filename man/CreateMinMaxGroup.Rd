@@ -31,8 +31,6 @@ A dataframe containing the minimum and the maximum of the group of dates include
 \examples{
     data(Events)
     Temp = CreateMinMaxGroup(Events, c(2,4), name = "Phase2")
-    Temp = CreateMinMaxGroup(Events, c(3,5), name = "Phase1", add=Temp, 
-    exportFile = "MinMaxPhases.csv")
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

@@ -37,8 +37,8 @@ Curves represent the density of the minimum (oldest dates) and the maximum (youn
 \examples{
   data(Phases); attach(Phases)
   SuccessionPlot(Phase.1.alpha, Phase.1.beta, Phase.2.alpha, Phase.2.beta, level = 0.95)
-  SuccessionPlot(Phase.1.alpha, Phase.1.beta, Phase.2.alpha, Phase.2.beta, 
-  exportFile = "Succession", exportFormat = "PNG")
+  # SuccessionPlot(Phase.1.alpha, Phase.1.beta, Phase.2.alpha, Phase.2.beta, 
+  # exportFile = "Succession", exportFormat = "PNG")
 }
 \keyword{ gap between two phases}
 \keyword{ transition between two phases}

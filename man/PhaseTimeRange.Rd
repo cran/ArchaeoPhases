@@ -26,5 +26,13 @@ Computes the shortest interval [IntervalInf ; IntervalSup ] that satisfies : P(P
   PhaseTimeRange(Phase.2.alpha, Phase.2.beta, 0.90)
 
 }
+\author{
+  Anne Philippe <Anne.Philippe@univ-nantes.fr> and
+
+  Marie-Anne Vibet <Marie-Anne.Vibet@univ-nantes.fr>
+}
+\references{
+Anne Philippe, Marie-Anne Vibet. (2020). Analysis of Archaeological Phases using the CRAN Package 'ArchaeoPhases', <doi:10.18637/jss.v093.c01>. 
+}
 \keyword{ phase time range}
 \keyword{ individual phase}

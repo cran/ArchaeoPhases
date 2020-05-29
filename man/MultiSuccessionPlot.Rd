@@ -28,6 +28,9 @@ MultiSuccessionPlot(data, position_minimum, position_maximum = position_minimum+
 \details{
   Curves represent the density of the minimum (oldest dates) and the maximum (youngest dates) of the dates included in each group. Curves of the same color refer to the same phase. When there is only one curve of one color, it means that there is only one event in the corresponding group and then the minimum equals the maximum. Time range intervals are symbolised by segments above the curves drawn using the same color as the one of the curves of the associated group. Transition and gap range intervals are represented by two-coloured segments using the colors of successive phases. If the gap between the successive groups does not exist, a cross is drawn instead of a segment. 
 }
+\references{
+Anne Philippe, Marie-Anne Vibet. (2020). Analysis of Archaeological Phases using the CRAN Package 'ArchaeoPhases', <doi:10.18637/jss.v093.c01>. 
+}
 \author{
   Anne Philippe <Anne.Philippe@univ-nantes.fr> and
 
@@ -47,7 +50,7 @@ MultiSuccessionPlot(data, position_minimum, position_maximum = position_minimum+
   MultiSuccessionPlot(Phases, c(4,2), title = "Succession of phase 1 and phase 2", colors = c(3,4))
   
   # export
-  MultiSuccessionPlot(Phases, c(4,2), exportFile = "MultiSuccessionPlot", exportFormat = "SVG")
+  # MultiSuccessionPlot(Phases, c(4,2), exportFile = "MultiSuccessionPlot", exportFormat = "SVG")
 }
 \keyword{ marginal posterior density }
 \keyword{ gap between two phases }
