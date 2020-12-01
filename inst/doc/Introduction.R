@@ -1,7 +1,19 @@
 ## ---- echo = FALSE, message = FALSE-----------------------------------------------------------------------------------
+hasData <- requireNamespace("ArchaeoPhases.dataset", quietly = TRUE)
+if (!hasData) {
+    knitr::opts_chunk$set(eval = FALSE)
+    msg <- paste("Note: Examples in this vignette require that the",
+    "`ArchaeoPhases.dataset` package be installed. The system",
+    "currently running this vignette does not have that package",
+    "installed, so code examples will not be evaluated.")
+    msg <- paste(strwrap(msg), collapse="\n")
+    message(msg)
+}
 knitr::opts_chunk$set(comment = "")
 options(width = 120, max.print = 5)
 library(ArchaeoPhases)
+library(ArchaeoPhases.dataset)
+
 
 ## ----eval=FALSE-------------------------------------------------------------------------------------------------------
 #  install.packages('ArchaeoPhases')
@@ -47,11 +59,10 @@ mcmcList = coda.mcmc(KADatesChronoModel, numberChains = 3, iterationColumn = 1)
 autocorr.plot(mcmcList[,1,])
 
 ## ----fig.align='center',fig.width=6,fig.height=5----------------------------------------------------------------------
-plot(mcmcList[,1,])
+plot(mcmcList[,1,][[1]][1:1000], type="l")
 
 ## ----fig.align='center',fig.width=6,fig.height=5----------------------------------------------------------------------
 gelman.diag(mcmcList)
-gelman.plot(mcmcList[,1,])
 
 ## ----fig.align='center',fig.width=6,fig.height=5----------------------------------------------------------------------
 geweke.diag(mcmcList[,1,], frac1=0.1, frac2=0.5)
