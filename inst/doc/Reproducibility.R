@@ -8,7 +8,7 @@ library(ArchaeoPhases)
 ## load ArchaeoPhases
 library(ArchaeoPhases)
 ## read remote file
-oxc <- read_oxcal("https://tsdye.online/AP/ox.csv", quiet = "yes")
+data(oxc)
 ## returns TRUE, if ox.csv has not changed on the server
 original_file(oxc)
 

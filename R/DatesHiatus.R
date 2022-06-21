@@ -44,7 +44,7 @@ DatesHiatus <- function(a_chain, b_chain, level=0.95){
       hia = Vectorize(interval,"epsilon")
 
       indz = which(a_chain<b_chain)
-      epsilon = seq(0,1-level,gamma)
+      epsilon = seq(0,1-level/gamma,.001)
       p = hia(epsilon, a_chain[indz], b_chain[indz], level/gamma)
       rownames(p)<- c("HiatusIntervalInf", "HiatusIntervalSup")
 
@@ -53,7 +53,7 @@ DatesHiatus <- function(a_chain, b_chain, level=0.95){
 
       if (length(DD) > 0){
         I = which(D==max(DD))
-        interval2 = round( p[,I], 0)
+        interval2 =  p[,I]
         if (p[2,I] != p[1,I]) {
           c(level=level, interval2[1], interval2[2])
         } else {
@@ -130,7 +130,7 @@ dates_hiatus <- function(a_chain, b_chain, level = 0.95) {
     hia = Vectorize(interval, "epsilon")
 
     ind = which(a_chain < b_chain)
-    epsilon = seq(0, 1 - level, gamma)
+    epsilon = seq(0, 1 - level/gamma, .001)
     p = hia(epsilon, a_chain[ind], b_chain[ind], level / gamma)
     d <- p[2, ] - p[1, ]
     dd <- d[d > 0]
@@ -138,7 +138,7 @@ dates_hiatus <- function(a_chain, b_chain, level = 0.95) {
     if (length(dd) < 1) return(no_hiatus)
 
     i <- which(d == max(dd))
-    i2 = round(p[, i], 0)
+    i2 = p[, i]
 
     if (p[2, i] == p[1, i]) return(no_hiatus)
 
