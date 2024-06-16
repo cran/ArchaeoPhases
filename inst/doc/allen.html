@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="T. S. Dye" />
+
+<meta name="date" content="2024-03-04" />
+
+<title>Allen’s interval algebra</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
+</style>
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Allen’s interval algebra</h1>
+<h4 class="author">T. S. Dye</h4>
+<h4 class="date">2024-03-04</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#overview-of-allens-interval-algebra" id="toc-overview-of-allens-interval-algebra"><span class="toc-section-number">1</span> Overview of Allen’s Interval
+Algebra</a></li>
+<li><a href="#analytic-inquiry-with-the-algebra" id="toc-analytic-inquiry-with-the-algebra"><span class="toc-section-number">2</span> Analytic Inquiry with the
+Algebra</a></li>
+<li><a href="#empirical-inquiry-with-the-algebra" id="toc-empirical-inquiry-with-the-algebra"><span class="toc-section-number">3</span> Empirical Inquiry with the
+Algebra</a></li>
+<li><a href="#references" id="toc-references">References</a></li>
+</ul>
+</div>
+
+<p><strong>ArchaeoPhases</strong> provides facilities to compute Allen’s
+interval algebra. This vignette provides an overview of the algebra and
+illustrates how it might be used analytically and empirically, given
+MCMC output from a Bayesian calibration.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">## Load ArchaeoPhases</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(ArchaeoPhases)</span></code></pre></div>
+<p>This vignette uses data available through the <a href="https://github.com/ArchaeoStat/ArchaeoData"><strong>ArchaeoData</strong></a>
+package which is available in a <a href="https://archaeostat.r-universe.dev">separate repository</a>.
+<strong>ArchaeoData</strong> provides MCMC outputs from ChronoModel,
+OxCal and BCal.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="do">## Install data package</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;ArchaeoData&quot;</span>, <span class="at">repos =</span> <span class="st">&quot;https://archaeostat.r-universe.dev&quot;</span>)</span></code></pre></div>
+<div id="overview-of-allens-interval-algebra" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Overview of Allen’s
+Interval Algebra</h1>
+<p>Allen’s interval algebra identifies 13 basic relations that are
+distinct, exhaustive, and qualitative <span class="citation">(Allen
+1983)</span>. The algebra is defined for definite intervals whose
+endpoints are single values. It can also be used with indefinite
+intervals whose endpoints are not single values.</p>
+<p>It is conventional to express an Allen relation with a notation that
+indicates two intervals and a set of relations. For example, given
+definite intervals <em>A</em> and <em>B</em>, where <em>A</em> precedes
+<em>B</em>, their Allen relation can be represented as <em>A(p)B</em>.
+Given indefinite intervals <em>C</em> and <em>D</em>, where <em>C</em>
+starts before <em>D</em> starts and ends before <em>D</em> ends, an
+Allen relation that expresses this incomplete information is
+<em>C(pmo)D</em>. Note that the Allen set (pmo) in the relation of
+<em>C</em> and <em>D</em> is a superset of the Allen set (p) in the
+relation of <em>A</em> and <em>B</em>. In this circumstance, when two
+Allen sets are related as superset/subset, the relation indicated by the
+superset is <em>weaker</em> and the relation indicated by the subset is
+<em>stronger</em>. An Allen relation thus provides a precise vocabulary
+for characterizing the state of knowledge about the relation between two
+intervals, regardless of whether the intervals are definite or
+indefinite.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"><strong>Relation</strong></th>
+<th align="center"></th>
+<th align="center"></th>
+<th align="right"><strong>Converse</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">precedes</td>
+<td align="center">(p)</td>
+<td align="center">(P)</td>
+<td align="right">preceded by</td>
+</tr>
+<tr class="even">
+<td align="left">meets</td>
+<td align="center">(m)</td>
+<td align="center">(M)</td>
+<td align="right">met by</td>
+</tr>
+<tr class="odd">
+<td align="left">overlaps</td>
+<td align="center">(o)</td>
+<td align="center">(O)</td>
+<td align="right">overlapped by</td>
+</tr>
+<tr class="even">
+<td align="left">finished by</td>
+<td align="center">(F)</td>
+<td align="center">(f)</td>
+<td align="right">finishes</td>
+</tr>
+<tr class="odd">
+<td align="left">contains</td>
+<td align="center">(D)</td>
+<td align="center">(d)</td>
+<td align="right">during</td>
+</tr>
+<tr class="even">
+<td align="left">starts</td>
+<td align="center">(s)</td>
+<td align="center">(S)</td>
+<td align="right">started by</td>
+</tr>
+<tr class="odd">
+<td align="left">equals</td>
+<td align="center">(e)</td>
+<td align="center"></td>
+<td align="right"></td>
+</tr>
+</tbody>
+</table>
+<p>It is often useful to visualize the basic Allen relations as a Nökel
+lattice. In a Nökel lattice, the immediate neighbors of a relation
+differ from it in the placement of a single interval end-point.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="do">## Plot the basic Allen relations</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">1</span>))</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">allen_illustrate</span>(<span class="st">&quot;basic&quot;</span>) </span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="data:image/png;base64,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" alt="plot of chunk basic_relations" width="50%" />
+<p class="caption">
+plot of chunk basic_relations
+</p>
+</div>
+</div>
+<div id="analytic-inquiry-with-the-algebra" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Analytic Inquiry with
+the Algebra</h1>
+<p>Interval algebra is carried out with a composition function that
+returns the relation of two intervals given their relations to a common
+third interval. As implemented here, the function expects the relation
+of one interval to the common interval and the relation of the common
+interval to the remaining interval. The function also accepts a title
+for the resulting Nokel lattice.</p>
+<p>In this example, the composition function deduces that the interval
+represented by a context inferior to a reference context precedes the
+interval represented by a context superior to the reference context.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="do">## Plot lattice for two contexts on the same line of a Harris matrix</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">1</span>))</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">allen_analyze</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">x =</span> <span class="st">&quot;m&quot;</span>, </span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">y =</span> <span class="st">&quot;m&quot;</span>, </span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">&quot;Composite relation of two contexts on the same line&quot;</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>) </span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="data:image/png;base64,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" alt="plot of chunk analyze_stratigraphy" width="50%" />
+<p class="caption">
+plot of chunk analyze_stratigraphy
+</p>
+</div>
+<p>The same lattice can be created with a convenience function.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="do">## Illustrate composite relations in a stratigraphic sequence</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">1</span>))</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">allen_illustrate</span>(<span class="st">&quot;sequence&quot;</span>) </span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="data:image/png;base64,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" alt="plot of chunk illustrate_stratigraphy" width="50%" />
+<p class="caption">
+plot of chunk illustrate_stratigraphy
+</p>
+</div>
+</div>
+<div id="empirical-inquiry-with-the-algebra" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Empirical Inquiry with
+the Algebra</h1>
+<p>Empirical inquiry with Allen’s interval algebra compares intervals
+estimated by Bayesian calibration of age determinations from Anglo-Saxon
+female burials.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="do">## Load the Anglo Saxon burials dataset</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;burials.csv&quot;</span>, <span class="at">package =</span> <span class="st">&quot;ArchaeoData&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>burials <span class="ot">&lt;-</span> <span class="fu">read.table</span>(path, <span class="at">header =</span> <span class="cn">TRUE</span>, <span class="at">sep =</span> <span class="st">&quot;,&quot;</span>, <span class="at">dec =</span> <span class="st">&quot;.&quot;</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>                      <span class="at">check.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; Warning in file(file, &quot;rt&quot;): file(&quot;&quot;) accepte seulement open = &quot;w+&quot; et open = &quot;w+b&quot; : utilisation du premier</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; Error in read.table(path, header = TRUE, sep = &quot;,&quot;, dec = &quot;.&quot;, check.names = FALSE): pas de lignes disponibles dans l&#39;entrée</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="do">## Coerce to event</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>burials <span class="ot">&lt;-</span> <span class="fu">as_events</span>(burials, <span class="at">calendar =</span> <span class="fu">CE</span>())</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; Error in h(simpleError(msg, call)): erreur d&#39;ï¿½valuation de l&#39;argument &#39;from&#39; lors de la sï¿½lection d&#39;une mï¿½thode pour la fonction &#39;as_events&#39; : objet &#39;burials&#39; introuvable</span></span></code></pre></div>
+<p>First, we check for the expected result of the identity relation by
+comparing an interval with itself.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="do">## Identify the burials with bead BE1-Dghnt</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>be1_dghnt <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="st">&quot;UB-4503 (Lec148)&quot;</span>, <span class="st">&quot;UB-4506 (Lec172/2)&quot;</span>, <span class="st">&quot;UB-6038 (CasD183)&quot;</span>, </span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="st">&quot;UB-4512 (EH091)&quot;</span>, <span class="st">&quot;UB-4501 (Lec014)&quot;</span>, <span class="st">&quot;UB-4507 (Lec187)&quot;</span>, </span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="st">&quot;UB-4502 (Lec138)&quot;</span>, <span class="st">&quot;UB-4042 (But1674)&quot;</span>, <span class="st">&quot;SUERC-39100 (ERL G266)&quot;</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="do">## Build phases</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>chains <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">&quot;BE1-Dghnt&quot;</span> <span class="ot">=</span> be1_dghnt)</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>be1_dghnt_phase <span class="ot">&lt;-</span> <span class="fu">phases</span>(burials, <span class="at">groups =</span> chains)</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; Error in h(simpleError(msg, call)): erreur d&#39;ï¿½valuation de l&#39;argument &#39;x&#39; lors de la sï¿½lection d&#39;une mï¿½thode pour la fonction &#39;phases&#39; : objet &#39;burials&#39; introuvable</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="do">## Plot</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">1</span>))</span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="fu">allen_observe</span>(be1_dghnt_phase) </span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; Error in h(simpleError(msg, call)): erreur d&#39;ï¿½valuation de l&#39;argument &#39;x&#39; lors de la sï¿½lection d&#39;une mï¿½thode pour la fonction &#39;allen_observe&#39; : objet &#39;be1_dghnt_phase&#39; introuvable</span></span></code></pre></div>
+<p>Next we compare the depositional histories of two bead types
+recovered from well-dated Anglo Saxon female burials in England. Note
+that the Allen relation and its converse are calculated.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="do">## Identify the burials with bead BE1-CylRound</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>be1_cylround <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="st">&quot;UB-4965 (ApD117)&quot;</span>, <span class="st">&quot;UB-4735 (Ber022)&quot;</span>, <span class="st">&quot;UB-4739 (Ber134/1)&quot;</span>, </span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="st">&quot;UB-6473 (BuD250)&quot;</span>, <span class="st">&quot;UB-6476 (BuD339)&quot;</span>, <span class="st">&quot;UB-4729 (MH068)&quot;</span>, </span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="st">&quot;UB-4835 (ApD134)&quot;</span>, <span class="st">&quot;UB-4708 (EH083)&quot;</span>, <span class="st">&quot;UB-4733 (MH095)&quot;</span>, </span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="st">&quot;UB-4888 (MelSG089)&quot;</span>, <span class="st">&quot;UB-4963 (SPTip208)&quot;</span>, <span class="st">&quot;UB-4890 (MelSG075)&quot;</span>, </span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="st">&quot;UB-4732 (MH094)&quot;</span>, <span class="st">&quot;SUERC-51539 (ERL G353)&quot;</span>, <span class="st">&quot;SUERC-51551 (ERL G193)&quot;</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>)</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="do">## Build phases</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>chains <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">&quot;BE1-Dghnt&quot;</span> <span class="ot">=</span> be1_dghnt, <span class="st">&quot;BE1-CylRound&quot;</span> <span class="ot">=</span> be1_cylround)</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>be1_phase <span class="ot">&lt;-</span> <span class="fu">phases</span>(burials, <span class="at">groups =</span> chains)</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; Error in h(simpleError(msg, call)): erreur d&#39;ï¿½valuation de l&#39;argument &#39;x&#39; lors de la sï¿½lection d&#39;une mï¿½thode pour la fonction &#39;phases&#39; : objet &#39;burials&#39; introuvable</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="do">## Plot phase</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="fu">plot</span>(be1_phase)</span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt; Error in h(simpleError(msg, call)): erreur d&#39;ï¿½valuation de l&#39;argument &#39;x&#39; lors de la sï¿½lection d&#39;une mï¿½thode pour la fonction &#39;plot&#39; : objet &#39;be1_phase&#39; introuvable</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="do">## Plot relations</span></span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">1</span>))</span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="fu">allen_observe</span>(be1_phase, <span class="at">converse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co">#&gt; Error in h(simpleError(msg, call)): erreur d&#39;ï¿½valuation de l&#39;argument &#39;x&#39; lors de la sï¿½lection d&#39;une mï¿½thode pour la fonction &#39;allen_observe&#39; : objet &#39;be1_phase&#39; introuvable</span></span></code></pre></div>
+<p>It can be useful to observe the frequency with which two intervals
+are related according to the relations in an Allen set. For instance, we
+might be interested in which of our two beads might be the trunk from
+which the other branched. This can be done by observing the frequency
+with which each bead type is related as <em>row(oFD)col</em> to the
+other bead. The following code shows that BE1-CylRound is the better
+trunk candidate.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">allen_observe_frequency</span>(be1_phase, <span class="at">set =</span> <span class="st">&quot;oFD&quot;</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co">#&gt; Error in h(simpleError(msg, call)): erreur d&#39;ï¿½valuation de l&#39;argument &#39;x&#39; lors de la sï¿½lection d&#39;une mï¿½thode pour la fonction &#39;allen_observe_frequency&#39; : objet &#39;be1_phase&#39; introuvable</span></span></code></pre></div>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1 class="unnumbered">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-allen1983" class="csl-entry">
+Allen, James F. 1983. <span>“Maintaining Knowledge about Temporal
+Intervals.”</span> <em>Communications of the ACM</em> 26 (11): 832–43.
+<a href="https://doi.org/10.1145/182.358434">https://doi.org/10.1145/182.358434</a>.
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
