@@ -6,7 +6,7 @@
 \alias{.ActivityEvents}
 \title{Activity}
 \description{
-An S4 class to store the result of an \code{\link{activity}} plot.
+An S4 class to store the result of an \link[=activity]{activity} plot.
 }
 \section{Slots}{
 
@@ -16,7 +16,7 @@ original data file.}
 }}
 
 \note{
-This class inherits from \code{\linkS4class{TimeSeries}}.
+This class inherits from \code{\link[aion:TimeSeries-class]{aion::TimeSeries}}.
 }
 \section{Coerce}{
 

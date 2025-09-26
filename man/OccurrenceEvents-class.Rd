@@ -6,18 +6,12 @@
 \alias{.OccurrenceEvents}
 \title{Occurrence}
 \description{
-An S4 class to store the result of an \code{\link{occurrence}} plot.
+An S4 class to store the result of an \link[=occurrence]{occurrence} plot.
 }
 \section{Slots}{
 
 \describe{
 \item{\code{events}}{An \code{\link{integer}} vector giving the occurrence.}
-
-\item{\code{start}}{A \code{\link{numeric}} vector giving the lower boundaries of the
-credibility interval.}
-
-\item{\code{end}}{A \code{\link{numeric}} vector giving the upper boundaries of the
-credibility interval.}
 
 \item{\code{level}}{A length-one \code{\link{numeric}} vector giving the confidence level.}
 
@@ -25,11 +19,23 @@ credibility interval.}
 original data file.}
 }}
 
+\note{
+This class inherits from \code{\link[aion:TimeIntervals-class]{aion::TimeIntervals}}.
+}
 \section{Coerce}{
 
 In the code snippets below, \code{x} is an \code{OccurrenceEvents} object.
 \describe{
 \item{\code{as.data.frame(x)}}{Coerces to a \code{\link{data.frame}}.}
+}
+}
+
+\section{Plot}{
+
+In the code snippets below, \code{x} is a \code{OccurrenceEvents} object.
+\describe{
+\item{\code{plot(x)}}{Results in a graphic being displayed
+(invisibly returns \code{x}).}
 }
 }
 

@@ -1,3 +1,5 @@
+Sys.setenv(LANGUAGE = "en") # Force locale
+
 # Build ========================================================================
 eve <- as_events(mcmc_events, calendar = CE(), iteration = 1)
 pha1 <- phases(eve, groups = list(phase_1 = c(1, 3), phase_2 = c(2, 4)))
@@ -10,11 +12,7 @@ expect_identical(names(pha2), colnames(pha2))
 # Plot =========================================================================
 if (at_home()) {
   using("tinysnapshot")
-  options(tinysnapshot_device = "svglite")
-  options(tinysnapshot_height = 7) # inches
-  options(tinysnapshot_width = 7)
-  options(tinysnapshot_tol = 1000) # pixels
-  options(tinysnapshot_os = "Linux")
+  source("helpers.R")
 
   ## Phases --------------------------------------------------------------------
   plot_phase_decr <- function() plot(pha1, decreasing = TRUE)

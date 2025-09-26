@@ -6,16 +6,16 @@
 \alias{.CumulativeEvents}
 \title{Cumulative Events}
 \description{
-An S4 class to store the result of a \code{\link{tempo}} plot.
+An S4 class to store the result of a \link[=tempo]{tempo} plot.
 }
 \section{Slots}{
 
 \describe{
 \item{\code{lower}}{A \code{\link{numeric}} vector giving the lower boundaries of the
-credibility interval.}
+credibility interval expressed in \emph{\link[aion:RataDie-class]{rata die}}.}
 
 \item{\code{upper}}{A \code{\link{numeric}} vector giving the upper boundaries of the
-credibility interval.}
+credibility interval expressed in \emph{\link[aion:RataDie-class]{rata die}}.}
 
 \item{\code{level}}{A length-one \code{\link{numeric}} vector giving the confidence level.}
 
@@ -32,7 +32,7 @@ original data file.}
 }}
 
 \note{
-This class inherits from \code{\linkS4class{TimeSeries}}.
+This class inherits from \code{\link[aion:TimeSeries-class]{aion::TimeSeries}}.
 }
 \section{Coerce}{
 

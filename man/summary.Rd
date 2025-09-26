@@ -7,17 +7,17 @@
 \alias{summary,PhasesMCMC-method}
 \title{Marginal Summary Statistics for Multiple MCMC Chains}
 \usage{
-\S4method{summary}{MCMC}(object, level = 0.95, calendar = getOption("ArchaeoPhases.calendar"))
+\S4method{summary}{MCMC}(object, level = 0.95, calendar = get_calendar())
 
-\S4method{summary}{PhasesMCMC}(object, level = 0.95, calendar = getOption("ArchaeoPhases.calendar"))
+\S4method{summary}{PhasesMCMC}(object, level = 0.95, calendar = get_calendar())
 }
 \arguments{
 \item{object}{An \code{\linkS4class{MCMC}} or a \code{\linkS4class{PhasesMCMC}} object.}
 
 \item{level}{A length-one \code{\link{numeric}} vector giving the confidence level.}
 
-\item{calendar}{A \code{\linkS4class{TimeScale}} object specifying the target calendar
-(see \code{\link[=calendar]{calendar()}}).}
+\item{calendar}{A \code{\link[aion:TimeScale-class]{aion::TimeScale}} object specifying the target calendar
+(see \code{\link[aion:calendar]{aion::calendar()}}).}
 }
 \value{
 A \code{\link{data.frame}} where the rows correspond to the chains of interest and

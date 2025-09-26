@@ -5,7 +5,7 @@ NULL
 # MCMC =========================================================================
 #' @export
 #' @method plot MCMC
-plot.MCMC <- function(x, calendar = getOption("ArchaeoPhases.calendar"),
+plot.MCMC <- function(x, calendar = get_calendar(),
                       density = TRUE, interval = NULL, level = 0.95,
                       sort = TRUE, decreasing = TRUE,
                       main = NULL, sub = NULL,
@@ -153,7 +153,7 @@ setMethod("plot", c(x = "MCMC", y = "missing"), plot.MCMC)
 # PhasesMCMC ===================================================================
 #' @export
 #' @method plot PhasesMCMC
-plot.PhasesMCMC <- function(x, calendar = getOption("ArchaeoPhases.calendar"),
+plot.PhasesMCMC <- function(x, calendar = get_calendar(),
                             density = TRUE, range = TRUE, succession = NULL,
                             level = 0.95, sort = TRUE, decreasing = TRUE,
                             legend = TRUE, main = NULL, sub = NULL,
@@ -206,7 +206,7 @@ plot.PhasesMCMC <- function(x, calendar = getOption("ArchaeoPhases.calendar"),
   ## Succession
   if (!is.null(succession) && !is.null(level)) {
     if (n_phases != 2)
-      stop("Time ranges can only be displayed with two phases.", call. = FALSE)
+      stop(tr_("Time ranges can only be displayed with two phases."), call. = FALSE)
 
     succession <- match.arg(succession, choices = c("transition", "hiatus"),
                             several.ok = TRUE)
@@ -223,7 +223,7 @@ plot.PhasesMCMC <- function(x, calendar = getOption("ArchaeoPhases.calendar"),
           col = fill.succession[[s]]
         )
       } else {
-        msg <- "Could not find a %s between these two phases."
+        msg <- tr_("Could not find a %s between these two phases.")
         warning(sprintf(msg, succession), call. = FALSE)
       }
     }
@@ -280,7 +280,7 @@ plot.PhasesMCMC <- function(x, calendar = getOption("ArchaeoPhases.calendar"),
     lab <- c(density, density)
     graphics::legend(
       x = ifelse(decreasing, "topright", "topleft"),
-      legend = c("Phase start", "Phase end")[lab],
+      legend = c(tr_("Phase start"), tr_("Phase end"))[lab],
       lty = c(1, 2)[lab],
       bty = "n"
     )
@@ -319,7 +319,7 @@ setMethod("plot", c(x = "PhasesMCMC", y = "missing"), plot.PhasesMCMC)
 # TempoEvents ==================================================================
 #' @export
 #' @method plot CumulativeEvents
-plot.CumulativeEvents <- function(x, calendar = getOption("ArchaeoPhases.calendar"),
+plot.CumulativeEvents <- function(x, calendar = get_calendar(),
                                   interval = c("credible", "gauss"),
                                   col.tempo = "#004488", col.interval = "grey",
                                   main = NULL, sub = NULL, ann = graphics::par("ann"),
@@ -374,7 +374,7 @@ plot.CumulativeEvents <- function(x, calendar = getOption("ArchaeoPhases.calenda
   ## Add annotation
   if (ann) {
     xlab <- if (is.null(calendar)) expression(italic("rata die")) else aion::format(calendar)
-    ylab <- "Cumulative events"
+    ylab <- tr_("Cumulative events")
     graphics::title(main = main, sub = sub, xlab = xlab, ylab = ylab)
   }
 
@@ -389,7 +389,7 @@ setMethod("plot", c(x = "CumulativeEvents", y = "missing"), plot.CumulativeEvent
 # ActivityEvents ===============================================================
 #' @export
 #' @method plot ActivityEvents
-plot.ActivityEvents <- function(x, calendar = getOption("ArchaeoPhases.calendar"),
+plot.ActivityEvents <- function(x, calendar = get_calendar(),
                                 main = NULL, sub = NULL,
                                 ann = graphics::par("ann"),
                                 axes = TRUE, frame.plot = axes,
@@ -447,7 +447,7 @@ plot.ActivityEvents <- function(x, calendar = getOption("ArchaeoPhases.calendar"
   ## Add annotation
   if (ann) {
     xlab <- if (is.null(calendar)) expression(italic("rata die")) else aion::format(calendar)
-    ylab <- "Activity"
+    ylab <- tr_("Activity")
     graphics::title(main = main, sub = sub, xlab = xlab, ylab = ylab)
   }
 
@@ -459,84 +459,11 @@ plot.ActivityEvents <- function(x, calendar = getOption("ArchaeoPhases.calendar"
 #' @aliases plot,ActivityEvents,missing-method
 setMethod("plot", c(x = "ActivityEvents", y = "missing"), plot.ActivityEvents)
 
-# OccurrenceEvents =============================================================
-#' @export
-#' @method plot OccurrenceEvents
-plot.OccurrenceEvents <- function(x, calendar = getOption("ArchaeoPhases.calendar"),
-                                  main = NULL, sub = NULL,
-                                  ann = graphics::par("ann"),
-                                  axes = TRUE, frame.plot = axes,
-                                  panel.first = NULL, panel.last = NULL, ...) {
-  ## Get data
-  n_events <- length(x@events)
-
-  ## Graphical parameters
-  dots <- list(...)
-  col <- get_par(dots, "col")
-  lty <- get_par(dots, "lty")
-  lwd <- get_par(dots, "lwd")
-  cex <- get_par(dots, "cex")
-  pch <- dots$pch %||% 16
-
-  ## Open new window
-  grDevices::dev.hold()
-  on.exit(grDevices::dev.flush(), add = TRUE)
-  graphics::plot.new()
-
-  ## Set plotting coordinates
-  years <- aion::as_fixed(c(x@start, x@end))
-  xlim <- xlim(years, calendar = calendar)
-  ylim <- range(x@events)
-  graphics::plot.window(xlim = xlim, ylim = ylim)
-
-  ## Evaluate pre-plot expressions
-  panel.first
-
-  ## Plot
-  x_start <- aion::as_year(x@start, calendar = calendar)
-  x_end <- aion::as_year(x@end, calendar = calendar)
-  graphics::segments(x0 = x_start,  x1 = x_end,
-                     y0 = x@events, y1 = x@events,
-                     col = col, lty = lty, lwd = lwd)
-  graphics::points(x = c(x_start, x_end),
-                   y = c(x@events, x@events),
-                   pch = pch, col = col, cex = cex)
-
-  ## Evaluate post-plot and pre-axis expressions
-  panel.last
-
-  ## Construct Axis
-  if (axes) {
-    aion::year_axis(side = 1, format = TRUE, calendar = calendar,
-                    current_calendar = calendar)
-    graphics::axis(side = 2, at = seq_len(n_events), labels = x@events, las = 1)
-  }
-
-  ## Plot frame
-  if (frame.plot) {
-    graphics::box()
-  }
-
-  ## Add annotation
-  if (ann) {
-    xlab <- if (is.null(calendar)) expression(italic("rata die")) else aion::format(calendar)
-    ylab <- "Occurrence"
-    graphics::title(main = main, sub = sub, xlab = xlab, ylab = ylab)
-  }
-
-  invisible(x)
-}
-
-#' @export
-#' @rdname occurrence
-#' @aliases plot,OccurrenceEvents,missing-method
-setMethod("plot", c(x = "OccurrenceEvents", y = "missing"), plot.OccurrenceEvents)
-
 # AgeDepthModel ================================================================
 #' @export
 #' @method plot AgeDepthModel
 plot.AgeDepthModel <- function(x, level = 0.95,
-                               calendar = getOption("ArchaeoPhases.calendar"),
+                               calendar = get_calendar(),
                                main = NULL, sub = NULL,
                                ann = graphics::par("ann"),
                                axes = TRUE, frame.plot = axes,
@@ -607,7 +534,7 @@ plot.AgeDepthModel <- function(x, level = 0.95,
   ## Add annotation
   if (ann) {
     xlab <- if (is.null(calendar)) expression(italic("rata die")) else aion::format(calendar)
-    ylab <- "Depth"
+    ylab <- tr_("Depth")
     graphics::title(main = main, sub = sub, xlab = xlab, ylab = ylab)
   }
 

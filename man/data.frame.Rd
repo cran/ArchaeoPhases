@@ -9,21 +9,21 @@
 \alias{as.data.frame,TimeRange-method}
 \title{Coerce to a Data Frame}
 \usage{
-\S4method{as.data.frame}{CumulativeEvents}(x, ..., calendar = getOption("ArchaeoPhases.calendar"))
+\S4method{as.data.frame}{CumulativeEvents}(x, ..., calendar = get_calendar())
 
-\S4method{as.data.frame}{ActivityEvents}(x, ..., calendar = getOption("ArchaeoPhases.calendar"))
+\S4method{as.data.frame}{ActivityEvents}(x, ..., calendar = get_calendar())
 
-\S4method{as.data.frame}{OccurrenceEvents}(x, ..., calendar = getOption("ArchaeoPhases.calendar"))
+\S4method{as.data.frame}{OccurrenceEvents}(x, ..., calendar = get_calendar())
 
-\S4method{as.data.frame}{TimeRange}(x, ..., calendar = getOption("ArchaeoPhases.calendar"))
+\S4method{as.data.frame}{TimeRange}(x, ..., calendar = get_calendar())
 }
 \arguments{
 \item{x}{An object.}
 
 \item{...}{Further parameters to be passed to \code{\link[=data.frame]{data.frame()}}.}
 
-\item{calendar}{A \code{\linkS4class{TimeScale}} object specifying the target calendar
-(see \code{\link[=calendar]{calendar()}}).}
+\item{calendar}{A \code{\link[aion:TimeScale-class]{aion::TimeScale}} object specifying the target
+calendar (see \code{\link[aion:calendar]{aion::calendar()}}).}
 }
 \value{
 A \code{\link{data.frame}} with an extra \code{time} column giving the (decimal) years at

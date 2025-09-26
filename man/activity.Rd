@@ -22,7 +22,7 @@ activity(object, ...)
 
 \S4method{plot}{ActivityEvents,missing}(
   x,
-  calendar = getOption("ArchaeoPhases.calendar"),
+  calendar = get_calendar(),
   main = NULL,
   sub = NULL,
   ann = graphics::par("ann"),
@@ -40,18 +40,18 @@ activity(object, ...)
 arguments to this function, particularly, \code{border}, \code{col}, \code{lwd} or \code{lty}.}
 
 \item{from}{A length-one \code{\link{numeric}} vector giving the earliest date to
-estimate for (in years).}
+estimate for (expressed in \emph{\link[aion:RataDie-class]{rata die}}).}
 
 \item{to}{A length-one \code{\link{numeric}} vector giving the latest date to estimate
-for (in years).}
+for (expressed in \emph{\link[aion:RataDie-class]{rata die}}.}
 
 \item{grid}{A length-one \code{\link{numeric}} vector specifying the number of equally
 spaced points of the temporal grid.}
 
 \item{x}{An \code{\linkS4class{ActivityEvents}} object.}
 
-\item{calendar}{A \code{\linkS4class{TimeScale}} object specifying the target calendar
-(see \code{\link[=calendar]{calendar()}}).}
+\item{calendar}{A \code{\link[aion:TimeScale-class]{aion::TimeScale}} object specifying the target
+calendar (see \code{\link[aion:calendar]{aion::calendar()}}).}
 
 \item{main}{A \code{\link{character}} string giving a main title for the plot.}
 
@@ -89,7 +89,6 @@ eve <- eve[1:10000, ]
 
 ## Tempo plot
 tmp <- tempo(eve)
-plot(tmp)
 plot(tmp, interval = "credible", panel.first = grid())
 plot(tmp, interval = "gauss", panel.first = grid())
 

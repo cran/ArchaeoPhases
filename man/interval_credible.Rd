@@ -9,11 +9,7 @@
 \usage{
 interval_credible(x, ...)
 
-\S4method{interval_credible}{MCMC}(
-  x,
-  level = 0.95,
-  calendar = getOption("ArchaeoPhases.calendar")
-)
+\S4method{interval_credible}{MCMC}(x, level = 0.95, calendar = get_calendar())
 }
 \arguments{
 \item{x}{An \code{\linkS4class{MCMC}} object containing the output of the MCMC algorithm.}
@@ -22,8 +18,8 @@ interval_credible(x, ...)
 
 \item{level}{A length-one \code{\link{numeric}} vector giving the confidence level.}
 
-\item{calendar}{A \code{\linkS4class{TimeScale}} object specifying the target calendar
-(see \code{\link[=calendar]{calendar()}}).}
+\item{calendar}{A \code{\link[aion:TimeScale-class]{aion::TimeScale}} object specifying the target
+calendar (see \code{\link[aion:calendar]{aion::calendar()}}).}
 }
 \value{
 Returns a \code{\link{list}} of \code{numeric} \code{\link{matrix}}.

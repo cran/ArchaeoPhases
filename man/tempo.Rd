@@ -12,7 +12,7 @@ tempo(object, ...)
 
 \S4method{plot}{CumulativeEvents,missing}(
   x,
-  calendar = getOption("ArchaeoPhases.calendar"),
+  calendar = get_calendar(),
   interval = c("credible", "gauss"),
   col.tempo = "#004488",
   col.interval = "grey",
@@ -46,8 +46,8 @@ arguments to this function.}
 \item{x}{A \code{\linkS4class{CumulativeEvents}} object or an \code{\linkS4class{EventsMCMC}}
 object.}
 
-\item{calendar}{A \code{\linkS4class{TimeScale}} object specifying the target calendar
-(see \code{\link[=calendar]{calendar()}}).}
+\item{calendar}{A \code{\link[aion:TimeScale-class]{aion::TimeScale}} object specifying the target
+calendar (see \code{\link[aion:calendar]{aion::calendar()}}).}
 
 \item{interval}{A \code{\link{character}} string specifying the confidence interval to
 be drawn. It must be one of "\code{credible}" (credible interval) or "\code{gauss}"
@@ -87,10 +87,10 @@ computed/displayed?}
 credible interval be computed/displayed?}
 
 \item{from}{A length-one \code{\link{numeric}} vector giving the earliest date to
-estimate for (in years).}
+estimate for (expressed in \emph{\link[aion:RataDie-class]{rata die}}).}
 
 \item{to}{A length-one \code{\link{numeric}} vector giving the latest date to estimate
-for (in years).}
+for (expressed in \emph{\link[aion:RataDie-class]{rata die}}).}
 
 \item{grid}{A length-one \code{\link{numeric}} vector specifying the number of equally
 spaced points of the temporal grid.}
@@ -122,7 +122,6 @@ eve <- eve[1:10000, ]
 
 ## Tempo plot
 tmp <- tempo(eve)
-plot(tmp)
 plot(tmp, interval = "credible", panel.first = grid())
 plot(tmp, interval = "gauss", panel.first = grid())
 

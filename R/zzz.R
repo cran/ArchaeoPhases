@@ -1,7 +1,6 @@
 .onLoad <- function(libname, pkgname) {
   op <- options()
   op.ArchaeoPhases <- list(
-    ArchaeoPhases.calendar = aion::CE(),
     ArchaeoPhases.grid = 512,
     ArchaeoPhases.precision = 0,
     ArchaeoPhases.progress = interactive()
@@ -13,8 +12,8 @@
 }
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage(
-    paste('ArchaeoPhases v2.0 brings a comprehensive package rewrite, ',
-          'resulting in the renaming of nearly all functions.',
-          'For further details, please consult the changelog.', sep = "\n")
+    paste(tr_("Breaking changes!"),
+          tr_("ArchaeoPhases v2.0 is the result of a complete code rewrite."),
+          tr_("For further details, please consult the changelog."), sep = "\n")
   )
 }
